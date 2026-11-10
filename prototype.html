@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 自习室 · 可交互原型（8 屏 / 375×812）</title>
+<meta name="description" content="AI 自习室 8 屏高保真原型，浏览器里可点击跳转：学习台、专注全屏、AI 解题浮层、错题本、计划周视图、学习报告、我的与数据、空态与异常。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M9 8h7a4 4 0 0 1 0 8H9zM9 16h8a4 4 0 0 1 0 8H9z' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box}
+:root{
+  --blue:#2563eb; --blue-dk:#1d4ed8; --blue-lt:#eff6ff; --navy:#1e3a8a;
+  --ink:#0f172a; --sub:#475569; --mute:#8494ab;
+  --line:#e2e9f5; --bg:#f5f8fd; --k:1;
+}
+html,body{margin:0;padding:0}
+body{
+  overflow-x:hidden;
+  background:var(--bg); color:var(--ink);
+  font:15px/1.7 "PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+
+/* ---------- 顶栏 ---------- */
+.ptop{
+  position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;
+  padding:11px 24px;background:rgba(255,255,255,.95);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border-bottom:1px solid #e6edf8;box-shadow:0 8px 22px -20px rgba(15,23,42,.6);
+}
+.ptop .back{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;
+  border:1px solid #dbe5f4;background:#fff;color:#334155;font-size:13px;font-weight:600;
+  text-decoration:none;white-space:nowrap;transition:.16s;
+}
+.ptop .back:hover{background:#f4f8ff;border-color:#b9cdf0;color:var(--blue-dk)}
+.ptop .ttl{min-width:0;flex:1}
+.ptop .ttl b{display:block;font-size:14.5px;font-weight:700;letter-spacing:.2px}
+.ptop .ttl span{display:block;font-size:11.5px;color:var(--mute);letter-spacing:.4px}
+.ptop .acts{display:flex;gap:9px}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:9px;
+  font-size:13px;font-weight:600;text-decoration:none;border:1px solid #d6e2f5;
+  background:#fff;color:var(--navy);white-space:nowrap;transition:.16s;
+}
+.btn:hover{background:#f3f8ff;border-color:#b4cbef}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 10px 20px -12px rgba(37,99,235,.95)}
+.btn.pri:hover{background:var(--blue-dk);border-color:var(--blue-dk)}
+
+/* ---------- 三栏 ---------- */
+.wrap{
+  max-width:1240px;margin:0 auto;padding:24px 22px 56px;
+  display:grid;grid-template-columns:188px minmax(0,1fr) 312px;gap:22px;align-items:start;
+}
+
+/* 左：流程 */
+.rail{
+  position:sticky;top:78px;background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:12px 10px;box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.rail-t{font-size:11px;letter-spacing:2px;color:var(--mute);font-weight:700;padding:4px 8px 9px}
+.rit{
+  display:flex;align-items:center;gap:9px;width:100%;padding:8px 9px;margin-bottom:2px;
+  border:0;border-radius:9px;background:none;cursor:pointer;text-align:left;
+  font:inherit;color:#334155;transition:.14s;
+}
+.rit:hover{background:#f4f8ff}
+.rit .no{
+  flex:none;width:26px;height:20px;border-radius:6px;background:#eef3fb;color:#64748b;
+  font-size:10.5px;font-weight:700;letter-spacing:.3px;
+  display:flex;align-items:center;justify-content:center;
+}
+.rit .nm{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rit.on{background:var(--blue-lt);color:var(--navy);font-weight:600;box-shadow:inset 2px 0 0 var(--blue)}
+.rit.on .no{background:var(--blue);color:#fff}
+
+/* 中：舞台 */
+.stage{
+  position:relative;display:flex;flex-direction:column;align-items:center;
+  padding:30px 20px 22px;border-radius:20px;border:1px solid var(--line);
+  background:radial-gradient(circle at 50% -10%,#e8f0fe 0%,rgba(232,240,254,0) 60%),
+             linear-gradient(#fcfdff,#f3f7fe);
+  box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.stage::before{
+  content:"";position:absolute;inset:0;border-radius:20px;pointer-events:none;
+  background-image:radial-gradient(#d8e4f6 1px,transparent 1px);
+  background-size:19px 19px;opacity:.5;
+  -webkit-mask-image:linear-gradient(#000,rgba(0,0,0,.15));mask-image:linear-gradient(#000,rgba(0,0,0,.15));
+}
+.devwrap{position:relative;transform-origin:top left}
+.dev{
+  position:absolute;left:0;top:0;width:399px;height:836px;padding:12px;border-radius:56px;
+  background:linear-gradient(158deg,#334155 0%,#0b1220 48%,#1e293b 100%);
+  box-shadow:0 46px 74px -38px rgba(15,23,42,.62),
+             0 0 0 1px rgba(255,255,255,.14) inset,
+             0 2px 0 rgba(255,255,255,.2) inset;
+  transform:scale(var(--k));transform-origin:top left;
+}
+.dev::after{
+  content:"";position:absolute;left:50%;transform:translateX(-50%);
+  bottom:6px;width:96px;height:3px;border-radius:3px;background:rgba(255,255,255,.16);
+}
+.scr{
+  position:relative;width:375px;height:812px;border-radius:44px;overflow:hidden;
+  background:#FBF8F0;
+}
+.scr img{display:block;width:375px;height:812px;user-select:none;-webkit-user-drag:none}
+
+/* 热区 */
+.hot{
+  position:absolute;border-radius:9px;cursor:pointer;
+  transition:background .14s,box-shadow .14s,outline-color .14s;
+  outline:1.5px dashed transparent;outline-offset:-1px;
+}
+.hot:hover{background:rgba(37,99,235,.11);outline-color:rgba(37,99,235,.6);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.hinton .hot{outline-color:rgba(37,99,235,.35);background:rgba(37,99,235,.045)}
+.hot.flash{background:rgba(37,99,235,.2);outline-color:rgba(37,99,235,.85)}
+.hot.pulse{animation:pulse 1.35s ease-out 3}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(37,99,235,.42);background:rgba(37,99,235,.16)}
+  70%{box-shadow:0 0 0 14px rgba(37,99,235,0);background:rgba(37,99,235,.03)}
+  100%{box-shadow:0 0 0 0 rgba(37,99,235,0);background:rgba(37,99,235,0)}
+}
+
+/* 提示条 */
+.tst{
+  position:absolute;border-radius:10px;padding:0 12px;display:flex;align-items:center;
+  font-size:11px;line-height:1.35;color:#EAF1EA;
+  box-shadow:0 10px 22px -12px rgba(15,23,42,.7);
+  animation:tin .22s ease-out both;
+}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ths{
+  position:absolute;border-radius:12px;border:1px solid #E3DAC4;background:#F6EFDF;
+  padding:10px 12px;animation:tin .22s ease-out both;box-shadow:0 10px 22px -14px rgba(15,23,42,.5);
+}
+.ths .h{font-size:10px;letter-spacing:.6px;color:#9AA296;margin-bottom:7px}
+.ths .l{font-size:12px;line-height:1.5;color:#2B3A33}
+.ths .l.b{color:#234B3D;font-weight:700;margin-top:4px}
+
+.hint{
+  margin:16px 0 0;font-size:12px;color:var(--mute);text-align:center;letter-spacing:.2px;
+}
+.hint b{color:#334155;font-weight:600}
+
+/* 右：说明 */
+.info{
+  position:sticky;top:78px;background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:18px 18px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.info-h{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.pill{
+  padding:3px 8px;border-radius:6px;background:var(--blue-lt);color:var(--blue-dk);
+  font-size:11px;font-weight:800;letter-spacing:.5px;
+}
+.info-h h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.2px}
+.info-d{margin:0 0 16px;font-size:12.8px;line-height:1.82;color:var(--sub)}
+.info-sec{border-top:1px solid #eef3fa;padding-top:13px}
+.info-t{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px}
+.info-t span:first-child{font-size:11px;letter-spacing:1.6px;color:var(--mute);font-weight:700}
+.info-t span:last-child{font-size:11px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  padding:5px 10px;border-radius:8px;border:1px solid #e2eaf6;background:#fafcff;
+  color:#3f5069;font-size:11.5px;cursor:pointer;transition:.14s;font-family:inherit;
+}
+.chip:hover{background:var(--blue-lt);border-color:#bcd3f2;color:var(--blue-dk)}
+.switch{
+  display:flex;align-items:center;gap:8px;margin-top:15px;padding-top:13px;
+  border-top:1px solid #eef3fa;font-size:12px;color:#52627a;cursor:pointer;user-select:none;
+}
+.switch input{width:14px;height:14px;accent-color:var(--blue);cursor:pointer;margin:0}
+.info-note{margin-top:12px;font-size:11.5px;line-height:1.75;color:var(--mute)}
+
+/* 底部 */
+.foot{
+  max-width:1240px;margin:0 auto;padding:0 22px 44px;
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--mute);
+}
+.foot a{color:#3f5069;text-decoration:none;border-bottom:1px solid #d9e4f4;padding-bottom:1px}
+.foot a:hover{color:var(--blue-dk);border-color:#9ebdf0}
+
+@media(max-width:1080px){
+  .wrap{grid-template-columns:1fr;padding:16px 14px 40px}
+  .rail,.info{position:static}
+  .rail{display:flex;gap:6px;overflow-x:auto;padding:8px;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(to right,#000 92%,transparent);mask-image:linear-gradient(to right,#000 92%,transparent)}
+  .rail::-webkit-scrollbar{display:none}
+  .rail-t{display:none}
+  .rit{width:auto;flex:none;padding:7px 11px;gap:6px}
+  .rit .nm{font-size:12px}
+  .stage{padding:22px 10px 18px}
+  .ptop{padding:10px 14px;gap:10px}
+  .ptop .ttl span{display:none}
+  .ptop .acts .btn:first-child{display:none}
+}
+@media(max-width:520px){
+  .ptop .back span{display:none}
+  .ptop .acts .btn{padding:7px 11px;font-size:12px}
+  .info{padding:15px}
+}
+</style>
+</head>
+<body>
+
+<header class="ptop">
+  <a class="back" href="index.html">← <span>返回作品集</span></a>
+  <div class="ttl">
+    <b>AI 自习室 · 可交互原型</b>
+    <span>8 屏 · 375 × 812 · 43 个可点区域 · 与 .rp 同一套坐标</span>
+  </div>
+  <div class="acts">
+    <a class="btn" href="download/ai-studyroom-prototype-ix.rp" download="AI自习室-原型-可交互-8屏.rp">下载 .rp</a>
+    <a class="btn pri" href="index.html#sec-proto">看设计说明</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <nav class="rail" id="rail" aria-label="屏幕列表">
+    <div class="rail-t">流程</div>
+  </nav>
+
+  <section class="stage" aria-label="原型舞台">
+    <div class="devwrap" id="devwrap">
+      <div class="dev">
+        <div class="scr" id="scr">
+          <img id="shot" src="assets/screens/p1.png" alt="P1 学习台" draggable="false">
+          <div id="hots"></div>
+          <div id="toasts"></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">点屏幕里的按钮或底栏 Tab 跳转 · <b>← →</b> 切屏 · 触屏可直接点</p>
+  </section>
+
+  <aside class="info">
+    <div class="info-h"><span class="pill" id="iNo">P1</span><h1 id="iName">学习台</h1></div>
+    <p class="info-d" id="iDesc"></p>
+    <div class="info-sec">
+      <div class="info-t"><span>可点区域</span><span id="iCount"></span></div>
+      <div class="chips" id="iChips"></div>
+    </div>
+    <label class="switch"><input type="checkbox" id="hintTog"><span>显示热区边界</span></label>
+    <div class="info-note">网页版与 Axure 文件同源：43 个热区、7 个提示态取自同一份 375×812 几何数据。.rp 里另有原生交互，需本地用 Axure 打开。</div>
+  </aside>
+
+</main>
+
+<footer class="foot">
+  <span>AI 自习室 · 产品设计作品集 · 8 屏高保真原型</span>
+  <span>
+    <a href="assets/overview.png" target="_blank" rel="noopener">8 屏全览图</a>
+    &nbsp;·&nbsp;
+    <a href="download/ai-studyroom-prototype-ix.rp" download="AI自习室-原型-可交互-8屏.rp">可交互 .rp</a>
+    &nbsp;·&nbsp;
+    <a href="download/ai-studyroom-prototype-static.rp" download="AI自习室-原型-纯静态-8屏.rp">纯静态 .rp</a>
+  </span>
+</footer>
+
+<script>
+(function(){
+  var TAB_Y = 735.8, TAB_H = 50.3, TAB_W = 75;
+  function tab(i, label, page){
+    return {t:label, x:i*TAB_W, y:TAB_Y, w:TAB_W, h:TAB_H, goto:page};
+  }
+
+  var SCREENS = [
+    {
+      id:'p1', no:'P1', name:'学习台',
+      desc:'默认落地页。今天要做的 3 件事压在一张深色卡里，主按钮直接进专注；下面 4 个快捷入口，最底部是本周节奏。',
+      spots:[
+        {t:'开始专注', x:18, y:302, w:339, h:58, goto:'p2', k:1},
+        tab(1,'Tab 计划','p5'), tab(2,'Tab 解题','p3'), tab(3,'Tab 错题','p4'), tab(4,'Tab 我的','p8')
+      ]
+    },
+    {
+      id:'p2', no:'P2', name:'专注全屏',
+      desc:'只留一个倒计时和一个「记一笔」。分心的时候点一下，时间戳记进这次专注，不打断计时。',
+      spots:[
+        {t:'结束并记录', x:20, y:703, w:335, h:50, goto:'p1'},
+        {t:'记一笔', x:285, y:542, w:70, h:41.3, show:'p2-t'}
+      ],
+      toasts:{'p2-t':{type:'bar', x:20, y:648, w:335, h:34, fill:'#2C5546', text:'已记录 1 次分心 · 16:42 · 已归入这组专注'}}
+    },
+    {
+      id:'p3', no:'P3', name:'解题浮层',
+      desc:'从任意页面唤起，半屏浮层不离开当前任务。默认只给第一步，连续要提示才逐步展开，最后才给答案。',
+      spots:[
+        {t:'点遮罩关闭', x:0, y:44, w:375, h:256, goto:'p1'},
+        {t:'关闭', x:313, y:320, w:44, h:28, goto:'p1'},
+        {t:'再提示一点', x:20, y:707.8, w:139, h:46, show:'p3-t'},
+        {t:'我懂了看答案', x:168, y:707.8, w:187, h:46, goto:'p1'}
+      ],
+      toasts:{'p3-t':{type:'card', x:20, y:536.5, w:335, h:87.3,
+        h1:'第 3 步 · 再提示',
+        lines:['把 2x 提到分母外：先写成 (3/2) · sin3x/(3x)','再代 x→0，得 3/2。系数别丢。']}}
+    },
+    {
+      id:'p4', no:'P4', name:'错题本',
+      desc:'自动收集做错的题，按错因分组。点「重做」回到同题不同数的变式，避免记住答案。',
+      spots:[
+        {t:'返回', x:18, y:48, w:34, h:44, goto:'p1'},
+        tab(0,'Tab 今日','p1'), tab(1,'Tab 计划','p5'), tab(2,'Tab 解题','p3'), tab(4,'Tab 我的','p8'),
+        {t:'重做 · 极限', x:298, y:219, w:64, h:30, goto:'p3'},
+        {t:'重做 · 导数', x:298, y:335.3, w:64, h:30, goto:'p3'},
+        {t:'重做 · 积分', x:298, y:451.5, w:64, h:30, goto:'p3'},
+        {t:'重做 · 数列', x:298, y:567.8, w:64, h:30, goto:'p3'}
+      ]
+    },
+    {
+      id:'p5', no:'P5', name:'计划周视图',
+      desc:'一周一屏，今天高亮，周日留作缓冲。拖不动的时候点「AI 重排」，把剩余任务压进剩下几天。',
+      spots:[
+        {t:'AI 重排', x:18, y:654.5, w:339, h:46, show:'p5-t'},
+        tab(0,'Tab 今日','p1'), tab(2,'Tab 解题','p3'), tab(3,'Tab 错题','p4'), tab(4,'Tab 我的','p8')
+      ],
+      toasts:{'p5-t':{type:'bar', x:18, y:600, w:339, h:34, fill:'#234B3D', text:'已按剩余 2 天重排 · 3 项顺延到明后天'}}
+    },
+    {
+      id:'p6', no:'P6', name:'空态与异常',
+      desc:'三种边界状态放在同一屏：新用户没有错题、AI 超时、首次进入未注册。每种都给下一步，不写「暂无数据」。',
+      spots:[
+        {t:'稍后重试', x:35, y:421.6, w:148.5, h:40, goto:'p1'},
+        {t:'看思路提示', x:191.5, y:421.6, w:148.5, h:40, goto:'p3'},
+        {t:'定个 25 分钟的目标', x:35, y:604.8, w:305, h:42, goto:'p2'}
+      ]
+    },
+    {
+      id:'p7', no:'P7', name:'学习报告',
+      desc:'本周有效专注 6h40m，7 日柱状 + 三项 KPI + 错因分布，可导出 PDF 交作业或给家长看。',
+      spots:[
+        {t:'切上周', x:305, y:70, w:66, h:30, show:'p7-a'},
+        {t:'导出 PDF', x:18, y:684, w:339, h:40, show:'p7-b'},
+        tab(0,'Tab 今日','p1'), tab(1,'Tab 计划','p5'), tab(2,'Tab 解题','p3'), tab(3,'Tab 错题','p4')
+      ],
+      toasts:{
+        'p7-a':{type:'bar', x:18, y:540, w:339, h:34, fill:'#2C5546', text:'已切到上周 10.12 – 10.18 · 有效专注 5h10m'},
+        'p7-b':{type:'bar', x:18, y:582, w:339, h:34, fill:'#234B3D', text:'已生成 PDF · 保存在「文件 · 自习室报告」'}
+      }
+    },
+    {
+      id:'p8', no:'P8', name:'我的 · 数据与会员',
+      desc:'默认本地模式，数据留在设备上，不用注册。三处导出（报告 / 错题 / 全量备份），会员入口标注 V1.1 才开放。',
+      spots:[
+        {t:'备份', x:300, y:118, w:58, h:30, show:'p8-a'},
+        {t:'自习会员', x:18, y:257, w:339, h:61, show:'p8-b'},
+        {t:'学习报告', x:19, y:333, w:337, h:43, goto:'p7'},
+        {t:'错题导出 PDF', x:19, y:376, w:337, h:43, show:'p8-a'},
+        {t:'数据备份与迁移', x:19, y:419, w:337, h:43, show:'p8-a'},
+        tab(0,'Tab 今日','p1'), tab(1,'Tab 计划','p5'), tab(2,'Tab 解题','p3'), tab(3,'Tab 错题','p4')
+      ],
+      toasts:{
+        'p8-a':{type:'bar', x:18, y:596, w:339, h:34, fill:'#2C5546', text:'已导出到本地文件 · 换机时用同一个 JSON 恢复'},
+        'p8-b':{type:'bar', x:18, y:638, w:339, h:34, fill:'#234B3D', text:'会员购买流程 · V1.1 开放，V1.0 全功能免费'}
+      }
+    }
+  ];
+
+  var rail = document.getElementById('rail');
+  var scr = document.getElementById('scr');
+  var shot = document.getElementById('shot');
+  var hots = document.getElementById('hots');
+  var tsts = document.getElementById('toasts');
+  var iNo = document.getElementById('iNo');
+  var iName = document.getElementById('iName');
+  var iDesc = document.getElementById('iDesc');
+  var iChips = document.getElementById('iChips');
+  var iCount = document.getElementById('iCount');
+  var cur = null, timer = null, seen = {};
+
+  /* 左侧列表 */
+  SCREENS.forEach(function(s){
+    var b = document.createElement('button');
+    b.className = 'rit';
+    b.type = 'button';
+    b.dataset.s = s.id;
+    b.innerHTML = '<span class="no">' + s.no + '</span><span class="nm">' + s.name + '</span>';
+    b.addEventListener('click', function(){ go(s.id); });
+    rail.appendChild(b);
+  });
+
+  function showToast(id){
+    var cfg = cur.toasts && cur.toasts[id];
+    if (!cfg) return;
+    tsts.innerHTML = '';
+    var el;
+    if (cfg.type === 'card'){
+      el = document.createElement('div');
+      el.className = 'ths';
+      el.style.cssText = 'left:' + cfg.x + 'px;top:' + cfg.y + 'px;width:' + cfg.w + 'px;height:' + cfg.h + 'px';
+      var html = '<div class="h">' + cfg.h1 + '</div>';
+      cfg.lines.forEach(function(l, i){
+        html += '<div class="l' + (i === cfg.lines.length - 1 ? ' b' : '') + '">' + l + '</div>';
+      });
+      el.innerHTML = html;
+    } else {
+      el = document.createElement('div');
+      el.className = 'tst';
+      el.style.cssText = 'left:' + cfg.x + 'px;top:' + cfg.y + 'px;width:' + cfg.w + 'px;height:' + cfg.h +
+                         'px;background:' + cfg.fill;
+      el.textContent = cfg.text;
+    }
+    tsts.appendChild(el);
+    clearTimeout(timer);
+    timer = setTimeout(function(){ tsts.innerHTML = ''; }, 2800);
+  }
+
+  function go(id, noHash){
+    var s = SCREENS.filter(function(x){ return x.id === id; })[0];
+    if (!s) s = SCREENS[0];
+    cur = s;
+    tsts.innerHTML = '';
+    shot.src = 'assets/screens/' + s.id + '.png';
+    shot.alt = s.no + ' ' + s.name;
+    hots.innerHTML = '';
+
+    s.spots.forEach(function(sp, idx){
+      var d = document.createElement('div');
+      d.className = 'hot';
+      d.style.cssText = 'left:' + sp.x + 'px;top:' + sp.y + 'px;width:' + sp.w + 'px;height:' + sp.h + 'px;z-index:' + (idx + 1);
+      d.title = sp.t;
+      d.setAttribute('role', 'button');
+      d.setAttribute('aria-label', sp.t);
+      if (sp.k && !seen[s.id]){
+        d.classList.add('pulse');
+        seen[s.id] = 1;
+      }
+      d.addEventListener('click', function(e){
+        e.stopPropagation();
+        if (sp.goto) go(sp.goto);
+        else if (sp.show) showToast(sp.show);
+      });
+      hots.appendChild(d);
+    });
+
+    Array.prototype.forEach.call(rail.children, function(b){
+      if (b.dataset) b.classList.toggle('on', b.dataset.s === s.id);
+    });
+
+    iNo.textContent = s.no;
+    iName.textContent = s.name;
+    iDesc.textContent = s.desc;
+    iCount.textContent = s.spots.length + ' 处';
+    iChips.innerHTML = '';
+    s.spots.forEach(function(sp){
+      var c = document.createElement('button');
+      c.className = 'chip';
+      c.type = 'button';
+      c.textContent = sp.t;
+      c.addEventListener('click', function(){
+        var i = s.spots.indexOf(sp);
+        var d = hots.children[i];
+        if (!d) return;
+        d.classList.add('flash');
+        setTimeout(function(){ d.classList.remove('flash'); }, 1100);
+        if (sp.show) showToast(sp.show);
+      });
+      iChips.appendChild(c);
+    });
+
+    if (!noHash && history.replaceState){
+      history.replaceState(null, '', '#' + s.id);
+    }
+  }
+
+  document.getElementById('hintTog').addEventListener('change', function(e){
+    scr.classList.toggle('hinton', e.target.checked);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var i = SCREENS.indexOf(cur);
+    var n = e.key === 'ArrowRight' ? i + 1 : i - 1;
+    if (n < 0) n = SCREENS.length - 1;
+    if (n >= SCREENS.length) n = 0;
+    go(SCREENS[n].id);
+  });
+
+  /* 自适应缩放：设备完整落在视口内 */
+  var devwrap = document.getElementById('devwrap');
+  function fit(){
+    var stage = document.querySelector('.stage');
+    var availW = stage.clientWidth - 40;
+    var availH = window.innerHeight - 188;
+    var k = Math.min(1, availW / 399, Math.max(availH, 380) / 836);
+    k = Math.max(.44, k);
+    document.documentElement.style.setProperty('--k', k);
+    devwrap.style.width = (399 * k) + 'px';
+    devwrap.style.height = (836 * k) + 'px';
+  }
+  window.addEventListener('resize', fit);
+
+  var h = (location.hash || '').replace('#', '');
+  go(h || 'p1', true);
+  fit();
+  setTimeout(fit, 120);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI自习室 · 产品设计作品集（需求 × 竞品 × 用户研究 × 功能架构 × 原型 × 商业化）</title>
+<meta name="description" content="AI 自习室产品设计全案：KANO 需求模型、10 位 Agent 用户打分、竞品五层拆解、用户研究、HMW 优化、35 个功能点、五版路线、信息架构、8 屏 375×812 高保真原型、指标与商业化。">
+<meta name="author" content="王轩">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M9 8h7a4 4 0 0 1 0 8H9zM9 16h8a4 4 0 0 1 0 8H9z' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+
+:root{
+  --paper:#F6F2E8; --card:#FDFBF5; --ink:#1E2B26; --ink-soft:#4A5750;
+  --pine:#234B3D; --pine-2:#356350; --pine-soft:#E7EDE6;
+  --bamboo:#7FA07F; --cinnabar:#BE4A2E; --gold:#C89B3C;
+  --line:#DDD5C2; --line-soft:#EAE4D5;
+  --shadow:0 1px 2px rgba(30,43,38,.05), 0 8px 24px -12px rgba(30,43,38,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--paper); color:var(--ink); line-height:1.7; font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Noto Serif SC",serif; font-weight:700; line-height:1.35; color:var(--ink)}
+.serif{font-family:"Noto Serif SC",serif}
+a{color:var(--pine-2);text-decoration:none}
+::selection{background:var(--pine);color:#fff}
+
+/* ===== 布局 ===== */
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:238px;flex-shrink:0;background:var(--pine);color:#E9EFE9;
+  position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;z-index:50;
+}
+.sidebar .brand{padding:26px 24px 20px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sidebar .brand .logo{display:flex;align-items:center;gap:10px}
+.sidebar .brand .logo svg{flex-shrink:0}
+.sidebar .brand b{font-family:"Noto Serif SC",serif;font-size:19px;letter-spacing:1px;color:#fff}
+.sidebar .brand small{display:block;margin-top:6px;font-size:11px;color:rgba(233,239,233,.62);letter-spacing:.5px}
+.nav{padding:14px 12px;overflow-y:auto;flex:1}
+.nav a{
+  display:flex;align-items:center;gap:11px;padding:10px 14px;margin:2px 0;border-radius:8px;
+  color:rgba(233,239,233,.78);font-size:13.5px;cursor:pointer;transition:all .18s;
+}
+.nav a svg{width:16px;height:16px;flex-shrink:0;opacity:.8}
+.nav a:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav a.active{background:var(--cinnabar);color:#fff}
+.nav a.active svg{opacity:1}
+.sidebar .foot{padding:14px 24px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;color:rgba(233,239,233,.5)}
+.main{flex:1;margin-left:238px;min-width:0}
+.topbar{display:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+.section{padding:70px 0 90px;scroll-margin-top:20px;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ===== 通用组件 ===== */
+.eyebrow{font-size:12px;letter-spacing:3px;color:var(--cinnabar);font-weight:500;text-transform:uppercase}
+.view-title{font-size:31px;margin:12px 0 10px}
+.view-sub{color:var(--ink-soft);font-size:14.5px;max-width:760px;margin-bottom:36px}
+.section-h{display:flex;align-items:baseline;gap:12px;margin:44px 0 18px}
+.section-h h3{font-size:19px}
+.section-h .num{font-family:"Noto Serif SC",serif;color:var(--cinnabar);font-size:15px;font-weight:700}
+.section-h .rule{flex:1;height:1px;background:var(--line)}
+.card{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;box-shadow:var(--shadow)}
+.tag{display:inline-block;padding:2px 11px;border-radius:20px;font-size:12px;font-weight:500;letter-spacing:.5px}
+.tag-M{background:#F6E3DC;color:#A33B24}
+.tag-O{background:#FBEED8;color:#9A6E1B}
+.tag-A{background:#E2EDE2;color:#2C5E3F}
+.tag-I{background:#ECEAE3;color:#6B6A60}
+.tag-Q{background:#E8E8EC;color:#555}
+.lead{font-size:15.5px;color:var(--ink-soft)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);opacity:0;
+  background:var(--ink);color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;
+  z-index:200;transition:transform .3s,opacity .3s;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:88vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ===== 封面 ===== */
+.hero{
+  background:linear-gradient(160deg,#1E4236 0%,#234B3D 55%,#2A5545 100%);
+  color:#EAF1EA;border-radius:0 0 26px 26px;padding:70px 0 64px;margin-bottom:8px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-60px;top:-60px;width:340px;height:340px;
+  border:1px solid rgba(255,255,255,.07);border-radius:50%}
+.hero::after{content:"";position:absolute;right:40px;top:40px;width:200px;height:200px;
+  border:1px solid rgba(255,255,255,.06);border-radius:50%}
+.hero .wrap{position:relative}
+.hero .eyebrow{color:#E3A98C}
+.hero h1{color:#fff;font-size:43px;letter-spacing:2px;margin:16px 0 4px}
+.hero .slogan{font-size:17px;color:rgba(234,241,234,.82);margin:14px 0 26px;max-width:620px}
+.hero-meta{display:flex;gap:34px;flex-wrap:wrap;margin-top:30px}
+.hero-meta .m b{display:block;font-family:"Noto Serif SC",serif;font-size:26px;color:#fff;font-weight:700}
+.hero-meta .m span{font-size:12px;color:rgba(234,241,234,.6)}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:10px;font-size:14px;
+  cursor:pointer;border:1px solid transparent;transition:all .18s;font-family:inherit;font-weight:500
+}
+.btn-primary{background:var(--cinnabar);color:#fff}
+.btn-primary:hover{background:#A83F27}
+.btn-ghost{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.btn-pine{background:var(--pine);color:#fff}
+.btn-pine:hover{background:#1B3C31}
+
+/* 定位卡 */
+.pos-card{padding:26px 28px}
+.pos-card h4{font-size:15px;color:var(--pine);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pos-card p{font-size:14px;color:var(--ink-soft)}
+.pos-card .vs{display:flex;gap:14px;margin-top:14px}
+.pos-card .vs div{flex:1;padding:13px 16px;border-radius:9px;font-size:13px}
+.pos-card .vs .no{background:#F3ECE3;color:#8a6a4f}
+.pos-card .vs .yes{background:var(--pine-soft);color:var(--pine)}
+
+/* ===== 需求卡 ===== */
+.need-card{padding:24px 26px;position:relative;overflow:hidden}
+.need-card .rid{
+  font-family:"Noto Serif SC",serif;font-size:13px;font-weight:700;color:#fff;background:var(--pine);
+  width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.need-card h4{font-size:16.5px;margin-bottom:8px}
+.need-card p{font-size:13.5px;color:var(--ink-soft)}
+.need-card .voice{margin-top:13px;padding:11px 14px;background:var(--paper);border-left:3px solid var(--bamboo);
+  border-radius:0 8px 8px 0;font-size:12.5px;color:var(--ink-soft);font-style:italic}
+.need-card .voice b{color:var(--pine);font-style:normal}
+
+/* 表格 */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line-soft);background:var(--card);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+table th,table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+table th{background:var(--pine);color:#fff;font-weight:500;font-size:12.5px;letter-spacing:.5px}
+table tr:last-child td{border-bottom:none}
+table tbody tr:hover{background:#F7F3E9}
+td .score{font-family:"Noto Serif SC",serif}
+.s-good{color:var(--pine-2);font-weight:700}
+.s-bad{color:var(--cinnabar);font-weight:700}
+
+/* 用户画像 */
+.persona{padding:20px;cursor:pointer;transition:transform .18s}
+.persona:hover{transform:translateY(-3px)}
+.persona .head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--pine-soft);display:flex;align-items:center;justify-content:center;
+  font-family:"Noto Serif SC",serif;color:var(--pine);font-weight:700;font-size:16px;flex-shrink:0}
+.persona .head b{font-size:14.5px}
+.persona .head span{font-size:11.5px;color:var(--ink-soft)}
+.persona .tagline{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.persona .scores{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--ink-soft)}
+.persona .scores b{color:var(--pine)}
+
+/* 图表容器 */
+.chart{width:100%;height:560px;background:var(--card);border:1px solid var(--line-soft);border-radius:12px;box-shadow:var(--shadow);padding:10px}
+.chart.tall{height:640px}
+.chart-mid{height:480px}
+
+/* 评级结果 */
+.result-card{padding:22px 24px;display:flex;flex-direction:column;gap:12px}
+.result-card .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.result-card h4{font-size:16px}
+.coef{display:flex;gap:20px}
+.coef .c{flex:1;text-align:center;padding:12px 8px;border-radius:9px;background:var(--paper)}
+.coef .c b{display:block;font-family:"Noto Serif SC",serif;font-size:21px}
+.coef .c.plus b{color:var(--pine-2)} .coef .c.minus b{color:var(--cinnabar)}
+.coef .c span{font-size:11px;color:var(--ink-soft)}
+.prio{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:4px 12px;border-radius:20px}
+.prio.P0{background:#A33B24;color:#fff} .prio.P1{background:#C89B3C;color:#fff} .prio.P2{background:#7FA07F;color:#fff}
+.explain{font-size:13px;color:var(--ink-soft);padding:11px 14px;background:var(--pine-soft);border-radius:8px}
+
+/* HMW */
+.hmw-board{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.hmw-q{padding:16px 18px;background:var(--card);border:1px solid var(--line-soft);border-radius:10px;
+  font-size:13.5px;display:flex;gap:12px;align-items:flex-start}
+.hmw-q .n{font-family:"Noto Serif SC",serif;color:var(--cinnabar);font-weight:700;flex-shrink:0}
+.solution{padding:24px;display:flex;flex-direction:column;gap:12px}
+.solution .shead{display:flex;align-items:center;gap:12px}
+.solution .sicon{width:40px;height:40px;border-radius:10px;background:var(--pine);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.solution h4{font-size:16px}
+.solution .feat{display:flex;flex-wrap:wrap;gap:8px}
+.solution .feat span{font-size:12px;padding:4px 12px;background:var(--paper);border-radius:20px;color:var(--ink-soft)}
+.solution .impact{font-size:12.5px;color:var(--pine);display:flex;align-items:center;gap:7px}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:13px;margin-top:6px}
+.kv dt{color:var(--ink-soft);white-space:nowrap} .kv dd{font-weight:500}
+.muted{color:var(--ink-soft);font-size:12.5px}
+.divider{height:1px;background:var(--line);margin:22px 0}
+
+/* ===== 移动端适配（窄屏优先补丁） ===== */
+@media (max-width:820px){
+  .sidebar{position:fixed;top:0;bottom:auto;left:0;right:0;width:100%;height:auto}
+  .sidebar .brand{padding:11px 18px 9px}
+  .sidebar .brand small{display:none}
+  .sidebar .brand b{font-size:16px}
+  .nav{display:flex;overflow-x:auto;padding:5px 9px;flex:none;align-items:center}
+  .nav .group{display:none}
+  .nav a{flex-shrink:0;white-space:nowrap;padding:8px 13px;margin:0 3px;font-size:12.5px}
+  .nav a svg{width:14px;height:14px}
+  .sidebar .foot{display:none}
+  .main{margin-left:0;padding-top:104px}
+  .wrap{padding:0 17px}
+  .section{padding:40px 0 56px}
+  .view-title{font-size:25px}
+  .hero{padding:44px 0 42px;border-radius:0 0 20px 20px}
+  .hero h1{font-size:31px}
+  .hero .slogan{font-size:14.5px}
+  .hero-meta{gap:22px}
+  .hero-meta .m b{font-size:22px}
+  .g2,.g3,.g4,.hmw-board{grid-template-columns:1fr}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .chart{height:460px} .chart.tall{height:520px}
+  .fn-kpis{grid-template-columns:repeat(2,1fr)}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .fn-table{min-width:760px}
+  .fn-table.version{min-width:900px}
+  .arch-grid{grid-template-columns:1fr;gap:6px 0;padding:12px 0}
+  .arch-label b{display:inline;margin-right:6px}
+  .ver-track{grid-template-columns:1fr;gap:9px}
+  .section-h{margin:32px 0 14px}
+}
+@media (min-width:821px) and (max-width:1100px){
+  .g3{grid-template-columns:repeat(2,1fr)}
+  .g4{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ===== 作业二 · 竞品与用户研究 ===== */
+.cols-2{grid-template-columns:repeat(2,1fr)}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.cols-4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){.cols-3,.cols-4{grid-template-columns:repeat(2,1fr)}.cols-2{grid-template-columns:1fr}}
+@media (max-width:560px){.cols-3,.cols-4,.cols-2{grid-template-columns:1fr}}
+.card h4{font-size:15.5px;margin-bottom:8px}
+.card p{font-size:13.5px;color:var(--ink-soft)}
+.kpi{text-align:center;padding:18px 12px}
+.kpi b{font-family:"Noto Serif SC",serif;font-size:28px;color:var(--pine);display:block;line-height:1.2}
+.kpi span{font-size:12px;color:var(--ink-soft)}
+.quote{border-left:3px solid var(--cinnabar);background:var(--card);padding:12px 16px;margin:8px 0;font-size:13.5px;color:var(--ink);border-radius:0 10px 10px 0;box-shadow:var(--shadow)}
+.quote i{color:var(--ink-soft)}
+.person{display:flex;gap:14px;align-items:flex-start}
+.person .avatar{width:46px;height:46px;font-size:16px}
+.person h4{font-size:15px}
+.person p{font-size:12.5px}
+.flow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0 4px}
+.flow .step{background:var(--pine-soft);color:var(--pine);border:1px solid #CFDCC9;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:500}
+.flow .arrow{color:var(--cinnabar);font-size:16px}
+.note{font-size:12px;color:#8A6D1F;background:#F5ECD8;border:1px solid #EAD9A8;border-radius:8px;padding:6px 12px;margin-top:12px;display:inline-block}
+.stage-card{border-left:4px solid var(--pine-2)}
+.stage-card.you{border-left-color:var(--cinnabar)}
+.stage-card .stage{font-size:11px;color:var(--ink-soft);letter-spacing:1px}
+.stage-card h4{font-size:15px;margin:2px 0 6px}
+.chart-box{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;box-shadow:var(--shadow);margin-top:20px}
+.chart-title{font-size:14px;font-weight:600;padding:14px 20px 0;font-family:"Noto Serif SC",serif}
+.chart-note{font-size:11.5px;color:var(--ink-soft);padding:0 20px 12px}
+.chart-box .chart{height:360px;padding:6px}
+.chart-box .chart.tall{height:430px;padding:6px}
+.layer5 table th,.layer5 table td{white-space:normal}
+td.rowhead{font-weight:600;background:var(--pine-soft)}
+.nav .group{padding:12px 14px 4px;font-size:11px;letter-spacing:1px;color:rgba(233,239,233,.45)}
+/* ===== 作业三 · 功能架构与原型设计 ===== */
+.fn-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:760px){.fn-kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* 需求拆解金字塔 */
+.pyr{display:flex;flex-direction:column;gap:9px;margin-top:8px;align-items:center}
+.pyr-bar{color:#fff;border-radius:8px;padding:12px 18px;font-size:12.5px;line-height:1.55;box-shadow:var(--shadow)}
+.pyr-bar b{font-family:"Noto Serif SC",serif;font-size:13px;letter-spacing:.5px;margin-right:10px;white-space:nowrap}
+.pyr-i{display:block;margin-top:5px;font-size:11.5px;font-style:normal;opacity:.82;line-height:1.5}
+@media(max-width:900px){.pyr-bar{width:100%!important}}
+
+/* 因果链表 */
+.causal{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.causal-head,.causal-row{display:grid;grid-template-columns:74px 1fr 1fr 1.15fr 112px;gap:14px;padding:13px 18px}
+.causal-head{background:var(--pine);color:#fff;font-size:11.5px;letter-spacing:1px}
+.causal-row{border-top:1px solid var(--line-soft);align-items:start}
+.causal-row .rid{font-family:"Noto Serif SC",serif;font-weight:700;color:var(--cinnabar);font-size:13px}
+.causal-row .cell{font-size:12.5px;color:var(--ink-soft);line-height:1.65}
+.causal-row .cell em{color:var(--pine);font-style:normal;font-weight:600}
+.causal-row .kpi-cell{font-size:11.5px;color:var(--pine-2);line-height:1.55}
+@media(max-width:900px){
+  .causal-head{display:none}
+  .causal-row{grid-template-columns:1fr;gap:5px;padding:14px 16px}
+  .causal-row .kpi-cell{border-top:1px dashed var(--line);padding-top:7px}
+}
+
+/* 功能结构表 */
+.fn-table td{white-space:normal;vertical-align:top}
+.fn-table td.mod{white-space:nowrap}
+.fn-table .tag{white-space:nowrap}
+.fn-table .chip{display:inline-block;margin:2px 5px 2px 0;padding:2px 9px;background:var(--paper);border:1px solid var(--line);border-radius:20px;font-size:11.5px;color:var(--ink-soft);line-height:1.7}
+.fn-table .chip.hmw{background:#F6E3DC;border-color:#E5C4B8;color:#A33B24}
+.fn-table .cnt{font-family:"Noto Serif SC",serif;color:var(--cinnabar);font-weight:700}
+
+/* 功能架构图 */
+.arch{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;box-shadow:var(--shadow);padding:24px 22px}
+.arch-grid{display:grid;grid-template-columns:96px 1fr;gap:14px 16px;align-items:center}
+.arch-label{font-size:11px;color:var(--ink-soft);line-height:1.5}
+.arch-label b{display:block;font-family:"Noto Serif SC",serif;font-size:12.5px;color:var(--pine);letter-spacing:.5px;margin-bottom:2px}
+.arch-chips{display:flex;flex-wrap:wrap;gap:7px}
+.arch-chip{font-size:12px;padding:6px 11px;border-radius:6px;background:var(--paper);border:1px solid var(--line);color:var(--ink-soft);line-height:1.45}
+.arch-chip.dark{background:var(--pine);border-color:var(--pine);color:#fff}
+.arch-chip.mid{background:var(--pine-soft);border-color:#CFDCC9;color:var(--pine)}
+.arch-chip.warm{background:#F6E3DC;border-color:#E5C4B8;color:#8E3A22}
+.arch-arrow{grid-column:1/-1;text-align:center;color:var(--bamboo);font-size:15px;line-height:.9}
+@media(max-width:720px){.arch-grid{grid-template-columns:1fr;gap:8px}.arch-arrow{display:none}.arch-label b{display:inline;margin-right:6px}}
+
+/* 版本时间轴 */
+.ver-tl{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin:10px 0 4px}
+.ver-node{background:var(--card);border:1px solid var(--line-soft);border-radius:10px;padding:13px 14px;box-shadow:var(--shadow);position:relative}
+.ver-node .v{font-family:"Noto Serif SC",serif;font-size:15px;font-weight:700;color:var(--pine)}
+.ver-node .w{font-size:11px;color:var(--cinnabar);margin-top:2px;letter-spacing:.5px}
+.ver-node .g{font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.55}
+.ver-node.now{border:2px solid var(--cinnabar)}
+.ver-node.now .v{color:var(--cinnabar)}
+@media(max-width:900px){.ver-tl{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.ver-tl{grid-template-columns:1fr}}
+
+/* 信息架构 */
+.ia-box{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;box-shadow:var(--shadow);padding:24px 22px}
+.ia-root{display:inline-block;background:var(--pine);color:#fff;padding:9px 18px;border-radius:8px;font-family:"Noto Serif SC",serif;font-size:13.5px;letter-spacing:1px}
+.ia-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
+@media(max-width:940px){.ia-branches{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.ia-branches{grid-template-columns:1fr}}
+.ia-col{border-top:2px solid var(--bamboo);padding-top:11px}
+.ia-col h5{font-family:"Noto Serif SC",serif;font-size:13px;color:var(--pine);margin-bottom:7px}
+.ia-col h5 span{font-size:10.5px;color:var(--ink-soft);font-weight:400;letter-spacing:.5px;margin-left:6px}
+.ia-leaf{font-size:12px;color:var(--ink-soft);padding:5px 0 5px 12px;border-left:1px solid var(--line-soft);line-height:1.55}
+.ia-leaf b{color:var(--ink);font-weight:500}
+.ia-leaf i{font-style:normal;color:var(--cinnabar);font-size:10.5px;margin-left:5px}
+
+/* ===== 手机原型（375 × 812，与真机 1:1） ===== */
+.wf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;align-items:start}
+@media(max-width:1000px){.wf-grid{grid-template-columns:1fr;justify-items:center}}
+.wf-card{background:var(--card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;width:100%}
+.wf-head{padding:12px 16px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wf-head b{font-family:"Noto Serif SC",serif;font-size:13.5px}
+.wf-head span{font-size:10.5px;color:var(--cinnabar);letter-spacing:.5px;white-space:nowrap}
+.wf-canvas{background:radial-gradient(120% 80% at 50% 0%,#F3EDDE 0%,#E9E2D0 58%,#E3DBC7 100%);padding:24px 10px 20px;display:flex;justify-content:center;align-items:flex-start;flex:1}
+/* 机身与屏幕 */
+.device{position:relative;width:397px;padding:10px;border-radius:52px;flex-shrink:0;
+  background:linear-gradient(155deg,#46504B 0%,#242B28 40%,#121715 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 28px 50px -24px rgba(18,28,24,.55),0 3px 10px rgba(18,28,24,.16)}
+.device::before,.device::after{content:"";position:absolute;width:3px;border-radius:3px;background:linear-gradient(180deg,#3C4540,#1B211E)}
+.device::before{right:-2px;top:186px;height:76px}
+.device::after{left:-2px;top:158px;height:50px}
+.scr{position:relative;width:375px;height:812px;border-radius:43px;overflow:hidden;background:#FBF8F0;
+  display:flex;flex-direction:column;font-size:13px;color:#2B3A33;line-height:1.5}
+.pill{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:104px;height:27px;border-radius:14px;background:#0A0F0D;z-index:20}
+.sbar{height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 28px;font-size:12.5px;font-weight:700;letter-spacing:.2px;position:relative;z-index:6}
+.sbar .ic{display:flex;align-items:center;gap:5px}
+.sbody{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.sbody>*{flex-shrink:0}
+.hbar{height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;z-index:6}
+.hbar i{width:134px;height:5px;border-radius:3px;background:rgba(30,43,38,.3)}
+/* 屏内元件 */
+.pad{padding:0 18px}
+.h1{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;letter-spacing:.5px;line-height:1.25}
+.sub{font-size:11.5px;color:#7C8A83;margin-top:3px}
+.cx{background:#fff;border:1px solid #EAE3D2;border-radius:13px;padding:12px 14px;box-shadow:0 1px 2px rgba(30,43,38,.04)}
+.cx.dark{background:#234B3D;border-color:#234B3D;color:#fff}
+.cx.dash{border-style:dashed;background:#FCFAF2}
+.lbl{font-size:10px;letter-spacing:1.6px;color:#9AA296;margin-bottom:7px}
+.cx.dark .lbl{color:rgba(255,255,255,.55)}
+.mut{color:#7C8A83}
+.btn2{height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:14px;font-weight:600;border:1px solid #DED5C0;background:#F4EDDC;color:#2B3A33}
+.btn2.pri{background:var(--cinnabar);border-color:var(--cinnabar);color:#fff;box-shadow:0 6px 14px -8px rgba(190,74,46,.9)}
+.btn2.pine{background:var(--pine);border-color:var(--pine);color:#fff}
+.btn2.mini{height:30px;font-size:11.5px;border-radius:8px;padding:0 12px;flex:0 0 auto;font-weight:500}
+.chip2{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:11.5px;background:#F4EDDC;border:1px solid #E3DAC4;color:#5C6A62;white-space:nowrap}
+.chip2.on{background:var(--pine);border-color:var(--pine);color:#fff;font-weight:500}
+.tagx{display:inline-block;font-size:9.5px;padding:1px 7px;border-radius:4px;background:#F6E3DC;color:#A33B24;letter-spacing:.3px}
+.tagx.b{background:#E7EDE6;color:#2C5E3F}
+.tagx.g{background:#EFEDE6;color:#6B6A60}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid #EBE4D3;background:#FDFBF5;padding:8px 0 5px;flex-shrink:0}
+.tabs div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:#9AA296;letter-spacing:.3px}
+.tabs div.on{color:var(--pine);font-weight:600}
+.tabs svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabs div.on svg{stroke-width:2}
+.cb{width:15px;height:15px;border-radius:4px;border:1.5px solid rgba(255,255,255,.4);flex-shrink:0;margin-top:2px}
+.wf-note{padding:11px 16px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--ink-soft);line-height:1.6}
+.wf-note b{color:var(--pine)}
+.wf-note .ia-pos{display:inline-block;font-size:10.5px;color:var(--cinnabar);border:1px solid #E5C4B8;background:#F6E3DC;border-radius:4px;padding:1px 7px;margin-right:6px}
+@media(max-width:520px){.device{transform:scale(.84);transform-origin:top center;margin-bottom:-128px}}
+
+/* ==========================================================================
+   新模板层：文档型作品集（蓝色文档模板）
+   追加在原有组件样式之后，只替换「页面壳 + 排版层级 + 配色」，
+   保留 .card / .grid / .pyr / .ia-* / .ver-* / .wf-* 等组件既有实现。
+   ========================================================================== */
+
+:root{
+  --paper:#f4f6fa; --card:#ffffff; --ink:#0f172a; --ink-soft:#475569;
+  --pine:#1e40af; --pine-2:#2563eb; --pine-soft:#eef4ff;
+  --bamboo:#7fa8d6; --cinnabar:#b8431f; --gold:#a8620d;
+  --line:#e3e9f2; --line-soft:#edf2f9;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 26px -18px rgba(15,23,42,.22);
+  --brand:#2563eb; --brand-dk:#1d4ed8; --brand-nv:#1e3a8a; --brand-lt:#eff6ff;
+}
+
+html{scroll-behavior:smooth;scroll-padding-top:82px}
+body{
+  background:var(--paper); color:var(--ink); font-size:14.5px; line-height:1.75;
+  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Noto Sans SC",system-ui,-apple-system,sans-serif;
+}
+h1,h2,h3,h4,h5,h6,.kpi b,.coef .c b,.chart-title,.ia-root,.pyr-bar b,.arch-label b,
+.ver-node b,.wf-head b,.view-title{font-family:inherit}
+h2,h3,h4{color:var(--ink);font-weight:700}
+
+/* ---------- 页面壳 ---------- */
+.layout{display:block;min-height:0}
+.sidebar{display:none!important}
+.main{margin-left:0;min-width:0}
+.topbar{display:none!important}
+.wrap{max-width:none;padding:0;margin:0}
+.container{max-width:1240px;margin:0 auto;padding:26px 22px 84px}
+.section{
+  background:#fff; border:1px solid #e7edf6; border-radius:16px;
+  padding:34px 38px 40px; margin:0 0 24px; animation:none;
+  box-shadow:0 1px 2px rgba(15,23,42,.035),0 14px 34px -26px rgba(15,23,42,.35);
+  scroll-margin-top:88px;
+}
+.section:last-child{margin-bottom:0}
+
+/* ---------- 页头 ---------- */
+.ph{
+  position:relative;overflow:hidden;color:#fff;padding:58px 0 0;
+  background:linear-gradient(118deg,#16307a 0%,#1d4ed8 46%,#3b82f6 100%);
+}
+.ph::before,.ph::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.ph::before{width:560px;height:560px;right:-150px;top:-230px;background:rgba(255,255,255,.07)}
+.ph::after{width:380px;height:380px;left:-120px;bottom:-210px;background:rgba(255,255,255,.05)}
+.ph-in{max-width:1240px;margin:0 auto;padding:0 22px 30px;position:relative;z-index:2;text-align:center}
+.ph-kicker{
+  display:inline-block;font-size:11.5px;letter-spacing:3.4px;color:#c7ddff;
+  border:1px solid rgba(199,221,255,.42);border-radius:999px;padding:4px 15px;margin-bottom:18px;
+}
+.ph h1{font-size:38px;line-height:1.28;letter-spacing:1.5px;color:#fff;font-weight:700}
+.ph h1 em{font-style:normal;color:#bfdbfe;font-weight:400}
+.ph-sub{max-width:760px;margin:14px auto 0;font-size:15px;line-height:1.85;color:rgba(235,244,255,.9);text-wrap:balance}
+.ph-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.ph-tags span{
+  font-size:12.5px;color:#e6f0ff;background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 13px;white-space:nowrap;
+}
+.ph-stats{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  border-top:1px solid rgba(255,255,255,.16);padding:22px 0 0;
+}
+.ph-stats div{min-width:126px;padding:0 24px;border-right:1px solid rgba(255,255,255,.14)}
+.ph-stats div:last-child{border-right:0}
+.ph-stats b{display:block;font-size:27px;line-height:1.15;color:#fff;font-weight:700;font-variant-numeric:tabular-nums}
+.ph-stats span{display:block;margin-top:2px;font-size:11.5px;color:rgba(199,221,255,.8);letter-spacing:.6px}
+
+/* ---------- 顶部导航（复用 .nav 以便原脚本可用） ---------- */
+.nav.nav-bar{
+  position:sticky;top:0;z-index:99;display:flex;flex-wrap:wrap;justify-content:center;
+  gap:2px 3px;padding:9px 18px;margin:0;overflow:visible;flex:none;
+  background:rgba(255,255,255,.97);border-bottom:1px solid #e5ebf5;
+  box-shadow:0 6px 18px -14px rgba(15,23,42,.55);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+.nav.nav-bar a{
+  display:inline-block;padding:6px 12px;margin:0;border-radius:8px;background:none;
+  color:#41506a;font-size:13px;font-weight:500;line-height:1.6;letter-spacing:.2px;
+  text-decoration:none;transition:background .16s,color .16s;
+}
+.nav.nav-bar a:hover{background:var(--brand-lt);color:var(--brand-dk)}
+.nav.nav-bar a.active{
+  background:var(--brand);color:#fff;font-weight:600;
+  box-shadow:0 8px 16px -10px rgba(37,99,235,.95);
+}
+
+/* ---------- 章节标题层级 ---------- */
+.kicker{
+  font-size:11.5px;letter-spacing:2.6px;color:var(--brand);font-weight:700;
+  text-transform:uppercase;margin:0 0 8px;
+}
+.section>h2{
+  font-size:24px;line-height:1.42;font-weight:700;letter-spacing:.4px;
+  border-left:5px solid var(--brand);padding-left:15px;margin:0;
+}
+.ch-lead{font-size:14.8px;line-height:1.88;color:var(--ink-soft);margin:15px 0 4px;max-width:960px}
+.ch-lead b,.section>p b{color:#1e293b}
+.section h3{
+  font-size:17.5px;font-weight:600;color:var(--brand-dk);
+  border-bottom:1px solid #e6edf7;padding-bottom:7px;margin:32px 0 14px;
+}
+.section h4{font-size:15px;font-weight:600;color:#334155;margin:18px 0 9px}
+.section p{color:#475569}
+.section a{color:var(--brand-dk)}
+
+/* 小节标题（.section-h 组件改造为编号 chip + 标题 + 细线） */
+.section-h{display:flex;align-items:center;gap:10px;margin:34px 0 14px}
+.section-h .num{
+  order:0;flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--brand-dk);
+  background:var(--brand-lt);border:1px solid #dbeafe;border-radius:6px;
+  padding:2px 8px;letter-spacing:.8px;font-variant-numeric:tabular-nums;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.section-h h3{margin:0;padding:0;border:0;font-size:17px;color:var(--ink);font-weight:600}
+.section-h .rule{flex:1;height:1px;background:#eaf0f8}
+.section-h+.card,.section-h+.grid,.section-h+.tbl-wrap{margin-top:2px}
+
+/* ---------- 卡片 / 栅格 ---------- */
+.card{background:#f8fafc;border:1px solid #e8eef7;border-radius:12px;box-shadow:none}
+.card h4{color:#1e293b}
+.grid{gap:16px}
+.lead{font-size:15px;color:var(--ink-soft)}
+
+/* ---------- 表格 ---------- */
+.section table{
+  width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;
+  border:1px solid #e6edf7;border-radius:10px;overflow:hidden;margin:14px 0;
+}
+.section thead th{
+  background:var(--brand-lt);color:var(--brand-nv);font-weight:600;
+  padding:10px 11px;border-bottom:1px solid #dbe6f5;text-align:left;white-space:nowrap;
+}
+/* 无 thead 的表格（五层模型等）同样走浅色表头 */
+.section table th{
+  background:var(--brand-lt);color:var(--brand-nv);font-weight:600;
+  font-size:12.5px;letter-spacing:.3px;border-bottom:1px solid #dbe6f5;
+}
+.section tbody td{
+  padding:10px 11px;border-bottom:1px solid #eef3fa;color:#334155;vertical-align:top;white-space:normal;
+}
+.section tbody tr:last-child td{border-bottom:0}
+.section tbody tr:nth-child(even){background:#fbfdff}
+.tbl-wrap{border:0;background:transparent;box-shadow:none;border-radius:0}
+.tbl-wrap table{margin:0;border-radius:10px}
+.tbl-wrap+.tbl-wrap{margin-top:14px}
+
+/* ---------- 标签 ---------- */
+.tag{border-radius:6px;font-weight:600;letter-spacing:0;font-size:12px;padding:3px 10px}
+.tag-M{background:#fee2e2;color:#b91c1c}
+.tag-O{background:#ffedd5;color:#c2410c}
+.tag-A{background:#dcfce7;color:#15803d}
+.tag-I{background:#e2e8f0;color:#475569}
+.tag-Q{background:#ede9fe;color:#6d28d9}
+.note{
+  display:block;width:fit-content;max-width:100%;
+  background:var(--brand-lt);border:1px solid #dbeafe;border-radius:8px;
+  color:#1e40af;font-size:12.5px;padding:8px 14px;margin-top:14px;
+}
+.muted{color:#64748b;font-size:13px}
+
+/* ---------- 图表 ---------- */
+.chart{background:#fbfcfe;border:1px solid #e8eef7;border-radius:12px;box-shadow:none}
+.chart-title{color:#1e293b}
+.chart-note{color:#64748b}
+.chart-box{background:#fbfcfe;border:1px solid #e8eef7;box-shadow:none}
+
+/* 因果链表头改为轻量蓝底，与普通表头统一 */
+.causal{background:#fff;border:1px solid #e6edf7;border-radius:10px;box-shadow:none}
+.causal-head{background:var(--brand-lt);color:var(--brand-nv);font-weight:600;letter-spacing:.5px;border-bottom:1px solid #dbe6f5}
+.causal-row .cell em{color:var(--brand-dk)}
+.causal-row .kpi-cell{color:#2563eb}
+
+/* 量表类表格居中 */
+.section table.ctr th,.section table.ctr td{text-align:center}
+
+/* ---------- KPI / 金字塔 / 版本 / IA 等组件微调 ---------- */
+.kpi{background:#fbfcfe;border-color:#e8eef7}
+.kpi b{color:var(--brand-dk)}
+.kpi span{color:#64748b}
+.coef .c b{color:var(--brand-nv)}
+.pyr-bar{box-shadow:0 6px 16px -12px rgba(15,23,42,.5)}
+.prio{font-weight:600}
+.ia-root{background:var(--brand-nv)}
+.ia-leaf i{color:var(--cinnabar)}
+.ver-node b{color:var(--brand-nv)}
+
+/* ---------- 原型屏（保护产品自身绿色品牌，仅换外框） ---------- */
+.wf-card{
+  --pine:#234B3D;--pine-2:#356350;--pine-soft:#E7EDE6;--cinnabar:#BE4A2E;
+  --gold:#C89B3C;--bamboo:#7FA07F;--ink:#1E2B26;--ink-soft:#4A5750;
+  --line:#DDD5C2;--line-soft:#EAE4D5;--card:#FDFBF5;
+  background:#fff;border:1px solid #e8eef7;border-radius:14px;box-shadow:none;
+}
+.wf-head{background:#fbfcfe;border-bottom:1px solid #e8eef7;padding:12px 16px}
+.wf-head b{color:#0f172a;font-size:13.5px;font-weight:700}
+.wf-head span{color:var(--brand);font-size:11px;font-weight:600;letter-spacing:.4px}
+.wf-canvas{background:linear-gradient(180deg,#f7f9fc 0%,#eef3f9 100%);overflow:hidden}
+.wf-note{color:#475569;border-top:1px solid #e8eef7;background:#fff;font-size:12px}
+.wf-note b{color:var(--brand-dk)}
+.wf-note .ia-pos{color:var(--brand-dk);border-color:#dbeafe;background:var(--brand-lt)}
+.wf-grid{gap:24px}
+.wf-card .tagx{font-family:inherit}
+
+/* ---------- 页脚 ---------- */
+.pf-foot{
+  max-width:1240px;margin:0 auto;padding:22px 22px 56px;text-align:center;
+  font-size:12.5px;color:#94a3b8;line-height:2;
+}
+.pf-foot b{color:#64748b;font-weight:600}
+
+/* ---------- 响应式 ---------- */
+@media(max-width:980px){
+  .container{padding:18px 12px 60px}
+  .section{padding:24px 16px 28px;border-radius:13px}
+  .section>h2{font-size:20px;padding-left:12px;border-left-width:4px}
+  .section h3{font-size:16px;margin:26px 0 12px}
+  .ch-lead{font-size:14px}
+  .ph{padding-top:36px}
+  .ph h1{font-size:26px;letter-spacing:.6px}
+  .ph-sub{font-size:13.5px}
+  .ph-stats div{min-width:0;flex:1 1 33.33%;padding:8px 6px;border-right:0}
+  .ph-stats b{font-size:21px}
+  .nav.nav-bar{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;padding:8px 10px}
+  .nav.nav-bar a{white-space:nowrap;font-size:12.5px;padding:6px 10px}
+  .section-h{gap:8px;margin:26px 0 12px}
+  .section-h h3{font-size:15.5px}
+}
+@media(max-width:760px){
+  .grid.g2,.grid.g3,.grid.g4,.hmw-board{grid-template-columns:1fr}
+  .ph-tags span{font-size:11.5px;padding:3px 10px}
+}
+@media(max-width:430px){
+  .device{transform:scale(.82);transform-origin:top center;margin-bottom:-150px}
+  .section{padding:20px 12px 24px}
+  .section>h2{font-size:18.5px}
+}
+@media(max-width:380px){
+  .device{transform:scale(.72);transform-origin:top center;margin-bottom:-233px}
+}
+
+
+/* ===== 部署层：在线原型入口（不参与原排版） ===== */
+.proto-cta{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;
+  margin:18px 0 20px;padding:17px 20px;border-radius:14px;
+  background:linear-gradient(100deg,#eff6ff 0%,#f8fbff 70%);
+  border:1px solid #dbe7fb;
+}
+.proto-cta .pc-l{min-width:0;flex:1 1 380px}
+.proto-cta .pc-t{font-size:15px;font-weight:700;color:#0f172a;letter-spacing:.2px}
+.proto-cta .pc-d{font-size:13px;line-height:1.72;color:#475569;margin-top:5px;max-width:660px}
+.proto-cta .pc-r{display:flex;flex-wrap:wrap;gap:9px}
+.pc-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;
+  font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;
+  border:1px solid #cfdcf3;background:#fff;color:#1e3a8a;transition:.16s;
+}
+.pc-btn:hover{background:#f2f7ff;border-color:#a9c5f0;transform:translateY(-1px)}
+.pc-btn.pri{
+  background:#2563eb;border-color:#2563eb;color:#fff;
+  box-shadow:0 10px 20px -12px rgba(37,99,235,.95);
+}
+.pc-btn.pri:hover{background:#1d4ed8;border-color:#1d4ed8}
+.pf-fab{
+  position:fixed;right:22px;bottom:22px;z-index:200;
+  display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;
+  background:#0f172a;color:#fff;font-size:13px;font-weight:600;text-decoration:none;
+  box-shadow:0 16px 32px -14px rgba(15,23,42,.85);transition:.16s;
+}
+.pf-fab:hover{background:#1e293b;transform:translateY(-1px)}
+.pf-fab i{font-style:normal;font-size:10px;opacity:.7}
+@media(max-width:760px){
+  .proto-cta{padding:14px 15px}
+  .proto-cta .pc-r{width:100%}
+  .pc-btn{flex:1;justify-content:center;padding:9px 12px;font-size:13px}
+  .pf-fab{right:12px;bottom:12px;padding:9px 14px;font-size:12px}
+}
+@media print{.pf-fab{display:none}}
+</style>
+</head>
+<body>
+
+<header class="ph">
+  <div class="ph-in">
+    <span class="ph-kicker">PRODUCT DESIGN PORTFOLIO · 2026</span>
+    <h1>AI 自习室 <em>· 产品设计全案</em></h1>
+    <p class="ph-sub">一个打开网页就能用的 AI 伴学空间——把「专注、解题、错题、计划」四件事放进同一间安静的自习室。不强制注册、不做聊天框，只做学习工作流。</p>
+    <div class="ph-tags">
+      <span>KANO 需求模型</span><span>Agent 用户模拟</span><span>竞品五层拆解</span><span>定性 + 定量研究</span>
+      <span>HMW 优化</span><span>功能架构</span><span>信息架构</span><span>高保真原型</span><span>指标与商业化</span>
+    </div>
+    <div class="ph-stats">
+      <div><b>5</b><span>核心需求</span></div>
+      <div><b>10</b><span>Agent 用户</span></div>
+      <div><b>50</b><span>组 KANO 评分</span></div>
+      <div><b>35</b><span>功能点</span></div>
+      <div><b>5</b><span>个版本</span></div>
+      <div><b>8</b><span>屏原型</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav nav-bar" id="nav">
+    <a href="#sec-overview" data-sec="overview" class="active">产品定位</a>
+    <a href="#sec-needs" data-sec="needs">5 个需求</a>
+    <a href="#sec-survey" data-sec="survey">Agent 打分</a>
+    <a href="#sec-kano" data-sec="kano">KANO 评级</a>
+    <a href="#sec-quadrant" data-sec="quadrant">四象限</a>
+    <a href="#sec-chain" data-sec="chain">业务链</a>
+    <a href="#sec-hmw" data-sec="hmw">HMW 方案</a>
+    <a href="#sec-identify" data-sec="identify">竞品分析</a>
+    <a href="#sec-qual" data-sec="qual">用户研究</a>
+    <a href="#sec-strategy" data-sec="strategy">策略制定</a>
+    <a href="#sec-function" data-sec="function">功能架构</a>
+    <a href="#sec-version" data-sec="version">版本规划</a>
+    <a href="#sec-ia" data-sec="ia">信息架构</a>
+    <a href="#sec-monetize" data-sec="monetize">商业化</a>
+    <a href="#sec-metrics" data-sec="metrics">指标验证</a>
+    <a href="#sec-proto" data-sec="proto">原型</a>
+    <a href="#sec-launch" data-sec="launch">发布计划</a>
+    <a href="#sec-conclusion" data-sec="conclusion">结论</a>
+</nav>
+
+<main class="container">
+    <section class="section" id="sec-overview">
+      <p class="kicker">CHAPTER 01 · 起点</p>
+      <h2>一、产品定位：为什么做一间 AI 自习室</h2>
+      <p class="ch-lead">一个人做的产品，最怕「什么都想做」。这一章只回答三个问题：给谁用、解决哪四件事、凭什么是我们。后面所有章节——从 KANO 到原型——都是这句话的展开。</p>
+      <div class="section-h"><span class="num">01</span><h3>为什么是这个方向</h3><span class="rule"></span></div>
+        <p class="lead">我自己最想做的不是又一个「全能AI聊天机器人」，而是一个真正贴着自习桌面的产品。学生在学习时反复遇到四件事：<b>坐不住、想不出、错题散、计划崩</b>。市面上的工具要么要注册、要么是聊天框、要么只做番茄钟，没有一个把完整学习闭环串起来。AI自习室就做这件事。</p>
+        <div class="grid g3" style="margin-top:22px">
+          <div class="card pos-card">
+            <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>目标用户</h4>
+            <p>大学生与备考人群：考研、考公、考证、期末冲刺，每天有 2 小时以上自主学习时间。</p>
+          </div>
+          <div class="card pos-card">
+            <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>核心价值</h4>
+            <p>降低开始学习的门槛，让 AI 像自习室里的同桌一样在关键处帮一把，而不是替你学习。</p>
+          </div>
+          <div class="card pos-card">
+            <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H4zM2 20h20M9 8h6M9 11h4"/></svg>产品形态</h4>
+            <p>纯 Web 单页应用，免登录、本地缓存，打开即用，数据归用户自己所有。</p>
+          </div>
+        </div>
+        <div class="card pos-card" style="margin-top:18px">
+          <h4>产品边界：我们不做什么</h4>
+          <div class="vs">
+            <div class="no">不做无所不聊的大聊天框、不强制注册、不做信息流和社交、不替学生直接写作业</div>
+            <div class="yes">只做学习闭环：专注计时、分步引导、错题归集、计划管理，四件事做深做透</div>
+          </div>
+        </div>
+    </section>
+
+    <section class="section" id="sec-needs">
+      <p class="kicker">STEP 1 · 需求收集</p>
+      <h2>二、需求收集：5 个真实用户需求</h2>
+      <p class="ch-lead">先让 Agent 模拟三类高频场景（考研自习、期末冲刺、日常上课），从用户原话中提炼 5 个需求，每条都保留「用户原声」，避免凭空想象。</p>
+      <div class="grid g2" id="needsGrid"></div>
+        <div class="section-h"><span class="num">01</span><h3>收集方式说明</h3><span class="rule"></span></div>
+        <div class="card pos-card">
+          <p>这 5 条需求不是功能罗列，而是按「用户痛点 → 期望结果」的句式整理。每条需求在下一步都会进入标准 KANO 双问问卷：<b>有这个功能你感受如何 / 没有这个功能你感受如何</b>，由 10 个 Agent 用户独立打分，最终用数据决定属性，而不是我主观归类。</p>
+        </div>
+    </section>
+
+    <section class="section" id="sec-survey">
+      <p class="kicker">STEP 2 · AGENT 模拟</p>
+      <h2>三、10 个 Agent 用户独立打分</h2>
+      <p class="ch-lead">每个用户画像独立、有自己的身份与处境，对 5 条需求分别回答「功能存在时」和「功能缺失时」两个问题。选项：<b>1很喜欢 / 2理应如此 / 3无所谓 / 4勉强接受 / 5很不喜欢</b>。</p>
+      <div class="section-h"><span class="num">01</span><h3>10个Agent用户画像</h3><span class="rule"></span></div>
+        <div class="grid g4" id="personaGrid"></div>
+
+        <div class="section-h"><span class="num">02</span><h3>完整 KANO 评分表（正/负，自动判定分类）</h3><span class="rule"></span></div>
+        <div class="tbl-wrap" style="margin-bottom:8px">
+          <table class="ctr" id="surveyTable">
+            <colgroup><col style="width:15%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%"></colgroup>
+            <thead><tr><th>用户</th><th>R1 分步讲解</th><th>R2 番茄专注</th><th>R3 免登录</th><th>R4 计划拖拽</th><th>R5 错题导出</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted">每格格式：<b>功能分 / 故障分 → 分类</b>。例如 <b>1/5 → O</b> 表示「有这功能很喜欢、没有很不喜欢」，即期望型需求。</p>
+
+        <div class="section-h"><span class="num">03</span><h3>KANO 判定矩阵（规则可复核）</h3><span class="rule"></span></div>
+        <div class="tbl-wrap">
+          <table class="ctr">
+            <colgroup><col style="width:22%"><col><col><col><col><col></colgroup>
+            <thead><tr><th>功能分＼故障分</th><th>1 很喜欢</th><th>2 理应如此</th><th>3 无所谓</th><th>4 勉强接受</th><th>5 很不喜欢</th></tr></thead>
+            <tbody>
+              <tr><td><b>1 很喜欢</b></td><td>Q 可疑</td><td>A 魅力</td><td>A 魅力</td><td>A 魅力</td><td>O 期望</td></tr>
+              <tr><td><b>2 理应如此</b></td><td>R 反向</td><td>I 无差异</td><td>I 无差异</td><td>I 无差异</td><td>M 必备</td></tr>
+              <tr><td><b>3 无所谓</b></td><td>R 反向</td><td>I 无差异</td><td>I 无差异</td><td>I 无差异</td><td>M 必备</td></tr>
+              <tr><td><b>4 勉强接受</b></td><td>R 反向</td><td>I 无差异</td><td>I 无差异</td><td>I 无差异</td><td>M 必备</td></tr>
+              <tr><td><b>5 很不喜欢</b></td><td>R 反向</td><td>R 反向</td><td>R 反向</td><td>R 反向</td><td>Q 可疑</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card pos-card" style="margin-top:18px">
+          <h4>模拟方式（WorkBuddy 提示词逻辑）</h4>
+          <p>让 Agent 为每个画像分别设定身份、目标与痛点，然后独立回答两张问卷，不允许互相参考、不允许先看结果。最终 50 组答案全部固化在本页面数据中，分类、系数均由代码实时计算，可逐条核对。</p>
+        </div>
+    </section>
+
+    <section class="section" id="sec-kano">
+      <p class="kicker">STEP 3 · 属性判定</p>
+      <h2>四、KANO 属性划分与优先级</h2>
+      <p class="ch-lead">用 KANO 判定矩阵把每组正反答案归为 M / O / A / I，取多数票确定属性；再计算 Better‑Worse 系数衡量该功能对满意度的影响。</p>
+      <div class="section-h"><span class="num">01</span><h3>属性与系数汇总表</h3><span class="rule"></span></div>
+        <div class="tbl-wrap" style="margin-bottom:8px">
+          <table class="ctr" id="kanoSummary">
+            <colgroup><col style="width:8%"><col style="width:22%"><col style="width:13%"><col style="width:18%"><col style="width:11%"><col style="width:11%"><col style="width:11%"></colgroup>
+            <thead><tr><th>编号</th><th>需求</th><th>属性</th><th>票数 M/O/A/I</th><th>Better</th><th>Worse</th><th>优先级</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted">Better = (A+O)/(A+O+M+I)，越接近 1，做了提升越明显；Worse = −(O+M)/(A+O+M+I)，绝对值越大，不做越致命。</p>
+
+        <div class="section-h"><span class="num">02</span><h3>5个需求逐项评级（按优先级排序）</h3><span class="rule"></span></div>
+        <div class="grid g2" id="resultCards" style="gap:16px"></div>
+
+        <div class="section-h"><span class="num">03</span><h3>分级开发策略</h3><span class="rule"></span></div>
+        <div class="grid g3">
+          <div class="card pos-card">
+            <h4 style="color:#A33B24">P0 必备 · 上线底线</h4>
+            <p>先做 R3 免登录。本地存储 + 打开即用，不满足这一条，种子用户会在注册环节直接流失，后续功能再好也没有意义。</p>
+          </div>
+          <div class="card pos-card">
+            <h4 style="color:#9A6E1B">P1 期望 · 核心竞争</h4>
+            <p>重点打磨 R1 分步讲解、R5 错题导出。它们决定用户「觉得好不好用」，做得越好满意度越高，是口碑主战场。</p>
+          </div>
+          <div class="card pos-card">
+            <h4 style="color:#2C5E3F">P2 魅力 · 差异亮点</h4>
+            <p>R2 专注统计、R4 计划拖拽作为差异化亮点迭代，不做不影响使用，做了会让用户惊喜并主动传播。</p>
+          </div>
+        </div>
+    </section>
+
+    <section class="section" id="sec-quadrant">
+      <p class="kicker">STEP 4 · 四象限</p>
+      <h2>五、Better–Worse 四象限</h2>
+      <p class="ch-lead">纵轴 Better（拥有该功能带来的满意度提升），横轴 |Worse|（缺失该功能带来的不满，越右惩罚越重）。分割线取 5 个需求的系数均值：Better=0.68，|Worse|=0.56。</p>
+      <div class="chart tall" id="chartQuadrant"></div>
+        <div class="grid g2" style="margin-top:18px">
+          <div class="card pos-card">
+            <h4>读图结论</h4>
+            <p>R3 独占右下角（缺失惩罚最重、满意提升低）；R1、R5 落在右上角（做了满意、不做挨骂）；R2、R4 落在左上角（做了惊喜、不做无感）。本项目没有落入左下角的无差异需求，说明 5 个需求都有存在价值。</p>
+          </div>
+          <div class="card pos-card">
+            <h4>象限含义</h4>
+            <p>右上＝<b>期望 O</b>，左上＝<b>魅力 A</b>，右下＝<b>必备 M</b>，左下＝<b>无差异 I</b>。可悬停在每个点上查看 Better、Worse 与票数明细。</p>
+          </div>
+        </div>
+    </section>
+
+    <section class="section" id="sec-chain">
+      <p class="kicker">STEP 5 · 核心链路</p>
+      <h2>六、核心业务链：四条支线汇入一个沉淀</h2>
+      <p class="ch-lead">AI自习室围绕「进房 → 专注 → 学练 → 沉淀 → 留存」形成完整闭环，四条业务支线最终都汇入学习数据沉淀。</p>
+      <div class="chart tall" id="chartChain"></div>
+        <div class="grid g3" style="margin-top:20px">
+          <div class="card pos-card"><h4>入口层 · 零门槛</h4><p>免登录打开网页，本地直接读取历史数据，3 秒内进入今日学习看板，不打断学习动机。</p></div>
+          <div class="card pos-card"><h4>业务层 · 四支线</h4><p>专注、解题、错题、计划四条支线并行，用户可从任意节点切入，互不阻塞。</p></div>
+          <div class="card pos-card"><h4>沉淀层 · 促留存</h4><p>所有行为汇入学习数据报告，用连续打卡、周报告和唤醒通知形成下一次学习的动机。</p></div>
+        </div>
+        <div class="card pos-card" style="margin-top:18px">
+          <h4>核心闭环一句话</h4>
+          <p><b>进房 → 专注 → 学练（AI分步）→ 错题归集 / 计划执行 → 数据沉淀 → 带着成就感再回来</b>。四条支线最终都服务于「让用户愿意再次打开」这一留存目标。</p>
+        </div>
+    </section>
+
+    <section class="section" id="sec-hmw">
+      <p class="kicker">STEP 6 · 方案发散</p>
+      <h2>七、HMW 优化方案设计</h2>
+      <p class="ch-lead">从 KANO 结果里挑出最需要优化的需求，用 How Might We 模型先发散、再收敛，输出可落地的优化方案。</p>
+      <div class="card pos-card" style="border-left:4px solid var(--cinnabar)">
+          <h4>优化对象：R2 番茄专注 —— 为什么是它？</h4>
+          <p>在 KANO 结果里，R2 被判为<b>魅力型 A（Better=0.70，|Worse|=0.40）</b>。但「专注」是学习产品最核心的场景，一个普通计时器对用户来说可有可无，说明它没有真正解决痛点：<b>坐不住、易分心、在家孤独、25 分钟并不适合每个人</b>。我们希望通过 HMW 优化，把专注从「锦上添花的计时器」升级为「用户每天主动走进的核心场景」，推动它从 A 向 O 跃迁，甚至成为新的差异化竞争力。</p>
+        </div>
+
+        <div class="section-h"><span class="num">01</span><h3>HMW 发散：我们如何……（问题墙）</h3><span class="rule"></span></div>
+        <div class="hmw-board" id="hmwBoard"></div>
+
+        <div class="section-h"><span class="num">02</span><h3>收敛：4个可落地优化方案</h3><span class="rule"></span></div>
+        <div class="grid g2" id="solutionCards"></div>
+
+        <div class="section-h"><span class="num">03</span><h3>优化路径：属性跃迁预期</h3><span class="rule"></span></div>
+        <div class="card pos-card" style="text-align:center">
+          <p style="font-size:16px">
+          <span class="tag tag-A">现状 A · 魅力型</span>
+          <span style="margin:0 14px;font-family:'Noto Serif SC';color:var(--cinnabar);font-size:20px">→</span>
+          <span class="tag tag-O">目标 O · 期望型</span>
+          <span style="margin:0 14px;font-family:'Noto Serif SC';color:var(--cinnabar);font-size:20px">→</span>
+          <span class="tag tag-I" style="background:#F3E7D6;color:#A33B24">长期：新核心竞争力</span>
+          </p>
+          <p class="muted" style="margin-top:12px">逻辑：先靠「一键沉浸」降低开始门槛、用「线上自习室」降低放弃率，再用「自适应番茄」让节奏贴合个人、用「专注可视化」让用户舍不得中断。四步组合后，专注功能将从「做了惊喜」变成「没有就不行」，完成 A→O 跃迁。</p>
+        </div>
+    </section>
+
+    <section class="section" id="sec-identify">
+      <p class="kicker">STEP 7 · 竞品分析</p>
+      <h2>八、竞品分析：识别 · 五层模型 · 发展阶段</h2>
+      <p class="ch-lead">竞品分析不是列一张功能对照表就完事。这一章按「找对对手 → 拆开看五层 → 判断他在哪个阶段」三步走：先确认谁真正抢同一批用户，再用战略 / 范围 / 结构 / 框架 / 表现五层拆解，最后用生命周期曲线判断对手的下一步，倒推我们的空位。</p>
+      <div class="section-h"><span class="num">01</span><h3>竞品识别 · 三大类型</h3><span class="rule"></span></div>
+        <p class="view-sub">判定维度：目标市场（大学生/备考人群 × AI 伴学）、客户群体（学生用户）、产品功能重合度（专注/自习/学习管理/AI 讲解）。</p>
+        <div class="grid cols-3">
+          <div class="card">
+            <span class="tag cin">直接竞争</span>
+            <h4>番茄ToDo / Costudy</h4>
+            <p>目标市场、用户群体与核心功能高度一致：同为“学生自律 + 自习陪伴”工具，抢的是同一批学习时间和用户心智。</p>
+          </div>
+          <div class="card">
+            <span class="tag gold">间接竞争</span>
+            <h4>Anki / 百词斩 / Notion</h4>
+            <p>功能互补或不同（记忆卡片、背单词、知识管理），但用户群体重合、无直接利益冲突——用户的时间都在它们身上。</p>
+          </div>
+          <div class="card">
+            <span class="tag">潜在竞争</span>
+            <h4>夸克学习 / 豆包 / 学习机</h4>
+            <p>行业领先者切入 AI 学习（夸克、豆包），异业竞争者（科大讯飞学习机）——随时可能把“AI 讲题”做成标配。</p>
+          </div>
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          <div class="card"><h4>为什么选这两个直接竞品</h4><p>番茄ToDo 是“专注时长”赛道的头部（成熟期），Costudy 是“线上自习陪伴”的代表（扩张期）——分别对应 AI 自习室的“专注”与“陪伴”两条核心线。</p></div>
+          <div class="card"><h4>间接竞品教给我们什么</h4><p>Anki 的间隔重复、百词斩的打卡激励、Notion 的知识沉淀——验证“学习内容闭环”比“纯计时”更能留存用户。</p></div>
+          <div class="card"><h4>潜在竞品的威胁路径</h4><p>大厂 AI 助手把“AI 解题”做成免费标配后，垂直自习工具若只有计时没有内容，将被降维打击——这是本作业的核心假设。</p></div>
+        </div>
+<div class="section-h"><span class="num">02</span><h3>竞品 5 层模型拆解</h3><span class="rule"></span></div>
+        <p class="view-sub">从外到内穿透：不只看 UI（表现层/框架层），重点挖战略与范围层的内核。以番茄ToDo、Costudy 为基准，右侧列为本产品差异化对照。</p>
+        <div class="layer5" style="overflow-x:auto">
+        <table style="table-layout:fixed;min-width:870px">
+          <colgroup><col style="width:90px"><col style="width:260px"><col style="width:260px"><col style="width:260px"></colgroup>
+          <tr><th style="width:90px">层级</th><th>番茄ToDo（成熟期）</th><th>Costudy（扩张期）</th><th>AI自习室（我们 · MVP期）</th></tr>
+          <tr><td class="rowhead">战略层</td><td>愿景：高效自律学习；定位“时间管理工具”；商业模式：高级版订阅 + 广告；用户需求：对抗拖延、统计成就感</td><td>愿景：陪伴式学习；定位“元宇宙自习室”；商业模式：会员 + 虚拟装扮变现；用户需求：学习不再孤单</td><td>愿景：AI 伴学闭环；定位“会讲题的自习室”；商业模式：免费基础 + 会员（暂拟）；用户需求：专注 + 卡住有人讲</td></tr>
+          <tr><td class="rowhead">范围层</td><td>核心链路：建任务→番茄专注→完成记录；功能：番茄钟、待办清单、线上自习室、数据统计；次级：锁机、白噪音、排行榜</td><td>核心链路：进自习室→选座→计时学习→互动；功能：虚拟自习室、专注计时、伙伴系统；次级：装扮、留言墙</td><td>核心链路：进房→专注→AI 解题→错题闭环→计划管理；功能：番茄专注、AI 分步讲解、错题自动归集、计划拖拽</td></tr>
+          <tr><td class="rowhead">结构层</td><td>常规功能成熟、特色功能（自习室/锁机）自成体系；用户流程：首页→任务→专注→统计→社交激励</td><td>特色功能（3D 场景、选座）为体验核心；用户流程：大厅→进房→选座→学习→互动陪伴</td><td>特色功能（AI 讲解 + 错题归集）为壁垒；用户流程：免登录进房→专注→拍照/文字问 AI→错题自动沉淀</td></tr>
+          <tr><td class="rowhead">框架层</td><td>底部 Tab + 卡片切换，统计页图表化，交互轻量稳定</td><td>3D 场景内点击交互、房间间跳转，沉浸感优先</td><td>单页连续下滑 + AI 对话浮层，一次进房直达核心动作</td></tr>
+          <tr><td class="rowhead">表现层</td><td>绿白简洁卡片风，克制的激励色，偏工具感</td><td>二次元场景化画风，视觉热闹、陪伴氛围强</td><td>东方书斋清新风（米纸底+松绿），安静专注</td></tr>
+        </table>
+        </div>
+        <div class="grid cols-2" style="margin-top:20px">
+          <div class="card"><h4>层间透视结论 ①</h4><p>番茄ToDo 的壁垒在<b>战略层的时间心智</b>与<b>范围层的统计体系</b>，但它没有“学习内容层”——用户专注时卡住无人可问，解题缺口长期无人满足。</p></div>
+          <div class="card"><h4>层间透视结论 ②</h4><p>Costudy 的壁垒在<b>陪伴场景</b>（结构层），但功能止于“陪伴 + 计时”，没有知识服务支撑，用户新鲜感消退后留存下滑——场景陪伴 ≠ 学习支持。</p></div>
+        </div>
+<div class="section-h"><span class="num">03</span><h3>产品发展 7 阶段定位</h3><span class="rule"></span></div>
+        <p class="view-sub">把竞品与自身放到生命周期曲线上，判断各自阶段，再定针对性策略（下方曲线为示意，定位点基于公开产品状态与作业假设）。</p>
+        <div class="chart-box"><div class="chart-title">生命周期定位：番茄ToDo → 高度竞争期 · Costudy → 大幅扩张期 · AI自习室 → MVP 验证期</div><div class="chart" id="chart-stages"></div><div class="chart-note">示意曲线：横轴为产品发展阶段，纵轴为相对市场规模/竞争力。定位点为作业分析结论。</div></div>
+        <div class="grid cols-3" style="margin-top:20px">
+          <div class="card stage-card"><div class="stage">竞品 A · 成熟</div><h4>番茄ToDo · 高度竞争期</h4><p>策略：卷赢对手、独占市场份额、提高付费（会员/广告）——留给新玩家的正面空间很小，只能差异化切入。</p></div>
+          <div class="card stage-card"><div class="stage">竞品 B · 成长</div><h4>Costudy · 大幅扩张期</h4><p>策略：关键节点投入关键资源快速扩张——验证“陪伴自习”需求真实存在，但内容壁垒尚未建立。</p></div>
+          <div class="card stage-card you"><div class="stage">我们 · 起步</div><h4>AI自习室 · MVP验证期</h4><p>策略：最小成本拉通“专注 + AI 解题”闭环，验证商业可行性，再进入跑马圈地。</p></div>
+        </div>
+    </section>
+
+    <section class="section" id="sec-qual">
+      <p class="kicker">STEP 8 · 用户研究</p>
+      <h2>九、用户研究：定性访谈 + 定量验证</h2>
+      <p class="ch-lead">定性与定量不是二选一：访谈负责发现「没被说出口的需求」，问卷负责验证「这个需求有多大」。两段研究共用同一套需求编号，结论可以直接回填到 KANO 表里。</p>
+      <div class="section-h"><span class="num">01</span><h3>用户研究 · 定性研究</h3><span class="rule"></span></div>
+        <p class="view-sub">定性研究回答“用户有哪些需求”。方法：深度访谈（5W2H 提纲）+ 焦点小组（8 人），全部为课程模拟执行。</p>
+        <div class="grid cols-2">
+          <div class="card">
+            <h4>深度访谈设计（5W2H 提纲）</h4>
+            <p style="margin-bottom:10px">Who 谁在用 / When 什么时候用 / Where 在哪用 / Why 为什么不用别的 / What 做了什么 / How 怎么解决卡住 / How much 愿意付多少。</p>
+            <div class="quote">问法守则：聆听为主、先开放再聚焦、先探索再跟踪、避免诱导性问题——让用户自己讲。</div>
+          </div>
+          <div class="card">
+            <h4>焦点小组设计</h4>
+            <p style="margin-bottom:10px">8 名大学生（考研 2 / 大一 2 / 考证 2 / 二战 2），话题：“带 AI 讲题的线上自习室，你希望怎么用？”</p>
+            <div class="quote">执行规则：发言均匀（每人机会均等）、干预过度活跃者、避开敏感话题。产出 3 条共识（见下）。</div>
+          </div>
+        </div>
+        <div class="grid cols-3" style="margin-top:16px">
+          <div class="card">
+            <div class="person"><div class="avatar">A</div><div><h4>考研党 · 小A（二战）</h4><p style="font-size:12px;margin-top:2px">每日 8h 番茄专注</p></div></div>
+            <p style="margin-top:10px">“番茄能锁我手机，但数学题卡住没人讲，只能拍照发群里等别人回，一等就是半天。”</p>
+            <div class="quote" style="margin-top:8px"><i>洞察：解题陪伴缺口 —— 专注工具只解决“坐得住”，不解决“学得会”。</i></div>
+          </div>
+          <div class="card">
+            <div class="person"><div class="avatar">B</div><div><h4>大一新生 · 小B</h4><p style="font-size:12px;margin-top:2px">用过 Costudy</p></div></div>
+            <p style="margin-top:10px">“自习室很热闹，但待了俩星期发现就是换个地方玩手机，花的时长不少，知识点没进脑子。”</p>
+            <div class="quote" style="margin-top:8px"><i>洞察：场景陪伴 ≠ 学习支持 —— 陪伴感留不住“学不进”的用户。</i></div>
+          </div>
+          <div class="card">
+            <div class="person"><div class="avatar">C</div><div><h4>在职备考 · 小C</h4><p style="font-size:12px;margin-top:2px">碎片时间学习</p></div></div>
+            <p style="margin-top:10px">“下班就 2 小时，不想注册登录折腾，就想打开就能学，卡住了 AI 马上给我讲。”</p>
+            <div class="quote" style="margin-top:8px"><i>洞察：免登录即用 + 即时反馈 —— 时间越碎片，越要零门槛。</i></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h4>焦点小组 3 条共识</h4>
+          <div class="grid cols-3" style="margin-top:10px">
+            <div class="card" style="box-shadow:none;background:var(--pine-soft)"><b>① AI 讲题要与错题联动</b><p style="margin-top:4px">问过的题要自动沉淀，考前能一键复习。</p></div>
+            <div class="card" style="box-shadow:none;background:var(--pine-soft)"><b>② 陪伴感可以有，别喧宾夺主</b><p style="margin-top:4px">要安静专注，不要花哨干扰。</p></div>
+            <div class="card" style="box-shadow:none;background:var(--pine-soft)"><b>③ 学习数据要可视化</b><p style="margin-top:4px">时长、题目、正确率要在同一张图里。</p></div>
+          </div>
+        </div>
+<div class="section-h"><span class="num">02</span><h3>用户研究 · 定量研究</h3><span class="rule"></span></div>
+        <p class="view-sub">定量研究回答“不同用户占比与优先级”。方法：问卷（正反两问法）+ 样本统计 + 卡诺模型判定；30 份课程模拟样本，与上期 10 用户/50 组结论交叉验证。</p>
+        <div class="grid cols-4">
+          <div class="card kpi"><b>30</b><span>问卷回收样本</span></div>
+          <div class="card kpi"><b>60%</b><span>用过番茄ToDo</span></div>
+          <div class="card kpi"><b>42%</b><span>因“无内容闭环”弃用专注工具</span></div>
+          <div class="card kpi"><b>71%</b><span>愿意尝试 AI 讲解功能</span></div>
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="card">
+            <h4>问卷结构（10 题）</h4>
+            <p style="margin-top:6px">① 背景 1 题（年级/备考类型）② 竞品使用 2 题（是否用过番茄/ Costudy，弃用原因）③ 卡诺正反两问 5 题（R1-R5 需求）④ 付费意愿 2 题。正反两问法：同一需求分别问“有该功能你满意吗 / 没有该功能你不满吗”。</p>
+          </div>
+          <div class="card">
+            <h4>与上期作业的衔接</h4>
+            <p style="margin-top:6px">上期 10 个 AI Agent 用户 × 5 需求 = 50 组样本已判定五属性；本期 30 份真实结构问卷对照，两期结论一致，说明优先级稳定，可作为策略依据。</p>
+          </div>
+        </div>
+        <div class="chart-box"><div class="chart-title">卡诺 SI/DSI 系数对比（两期样本结论一致）</div><div class="chart" id="chart-sidsi"></div><div class="chart-note">Better（SI）= 具备时满意度增量；Worse（DSI，取负值）= 缺失时满意度惩罚。数值来自上期 50 组判定与本期 30 份对照（模拟）。</div></div>
+        <div class="chart-box"><div class="chart-title">五属性需求分布（本期 30 样本 · 交叉表判定）</div><div class="chart tall" id="chart-kano"></div><div class="chart-note">R3 免登录打开即用 = 必备属性（M）；R1 AI 分步讲解 / R5 错题 PDF 导出 = 期望属性（O）；R2 番茄专注 / R4 AI 计划拖拽 = 魅力属性（A）。</div></div>
+    </section>
+
+    <section class="section" id="sec-strategy">
+      <p class="kicker">STEP 9 · 策略制定</p>
+      <h2>十、策略制定：四象限 + 针对性方案</h2>
+      <div class="section-h"><span class="num">01</span><h3>策略制定 · 四象限 + 针对性方案</h3><span class="rule"></span></div>
+        <p class="view-sub">用“用户 × 服务”两维判断竞品关系，再结合 7 阶段定位输出 AI 自习室的差异化策略。</p>
+        <div class="chart-box"><div class="chart-title">四象限竞争关系：相同用户 + 相同服务 = 直接竞争</div><div class="chart tall" id="chart-quad"></div><div class="chart-note">示意散点：横轴=服务重合度，纵轴=用户重合度。番茄ToDo 与 Anki 是两条不同服务线的代表。</div></div>
+        <div class="grid cols-3" style="margin-top:20px">
+          <div class="card stage-card"><h4>策略① 借力 · 借鉴成熟激励</h4><p style="margin-top:6px">引入番茄ToDo 的锁机/自习室/排行榜激励体系与 Costudy 的陪伴场景（MVP 期最小成本照抄已验证的形态），降低用户迁移成本。</p></div>
+          <div class="card stage-card you"><h4>策略② 差异化 · 建立内容壁垒</h4><p style="margin-top:6px">以“AI 分步讲解 + 错题自动归集 + PDF 导出”形成学习内容闭环——这是两个直接竞品都不具备的范围层能力，避开纯卷时长。</p></div>
+          <div class="card stage-card"><h4>策略③ 防御 · 应对潜在竞争</h4><p style="margin-top:6px">大厂 AI（夸克/豆包）会把“AI 讲题”做成免费标配：押注垂直场景深度体验（错题数据资产、备考陪伴、免登录即用）作为护城河。</p></div>
+        </div>
+    </section>
+
+    <section class="section" id="sec-function">
+      <p class="kicker">STEP 10 · 功能推导</p>
+      <h2>十一、功能架构：从 5 条需求到 35 个功能点</h2>
+      <p class="ch-lead">前面用 KANO 证明了「这 5 条需求是真的」，这一章回答「它们该变成什么功能」。做法是先把需求逐层拆到功能点（金字塔），再用因果链确认每个功能都有明确的用户问题做支撑，最后沉淀成可开发的功能结构表与四层功能架构图。</p>
+      <div class="fn-kpis">
+          <div class="card kpi"><b>5</b><span>已验证需求（R1–R5）</span></div>
+          <div class="card kpi"><b>7</b><span>功能模块（M1–M7）</span></div>
+          <div class="card kpi"><b>35</b><span>可开发功能点</span></div>
+          <div class="card kpi"><b>4</b><span>架构层级（入口/模块/能力/数据）</span></div>
+        </div>
+
+        <div class="section-h"><span class="num">01</span><h3>拆解过程 · 五层金字塔</h3><span class="rule"></span></div>
+        <p class="lead" style="margin-bottom:16px">
+          拆解逻辑是自上而下逐层收敛：业务目标决定要解决哪几个用户问题，用户问题决定产品需要具备什么能力，能力再落成模块与功能点。每一层都必须能向上追溯到需求，避免「拍脑袋加功能」。
+        </p>
+        <div class="pyr">
+          <div class="pyr-bar" style="background:#0f2557;width:47%"><b>L0 业务目标</b><span>让大学生坐得住、想得出、错题不散、计划不崩</span><i class="pyr-i">一句话目标：把学习闭环放进同一间自习室，用「打开就能用」换留存。</i></div>
+          <div class="pyr-bar" style="background:#1b3f8f;width:62%"><b>L1 用户需求</b><span>R1 分步讲解 · R2 专注 · R3 免登录 · R4 计划 · R5 错题</span><i class="pyr-i">5 条需求已由 10 个 Agent × 50 组 KANO 样本判定属性：1 个 M、2 个 O、2 个 A。</i></div>
+          <div class="pyr-bar" style="background:#2563eb;width:78%"><b>L2 产品能力</b><span>零门槛访问 · 专注激励 · 引导式讲解 · 错题沉淀 · 计划编排 · 数据反馈 · 数据主权</span><i class="pyr-i">7 项能力，每项都能对应一条需求；能力是产品会什么，不是页面有什么。</i></div>
+          <div class="pyr-bar" style="background:#4f83d6;width:90%"><b>L3 功能模块</b><span>M1 学习台 · M2 专注引擎 · M3 AI 解题 · M4 错题闭环 · M5 计划管理 · M6 数据成长 · M7 设置与数据</span><i class="pyr-i">模块按用户任务划分，不按技术分层划分，保证一个模块内能独立完成一件事。</i></div>
+          <div class="pyr-bar" style="background:#5f8cc9;width:100%"><b>L4 功能点</b><span>35 个可开发、可验收的最小功能单元，全部标注承接需求、KANO 属性与落地版本</span><i class="pyr-i">功能点必须满足三条：能单独验收、能对应一个界面动作、能追溯到一条需求或一个 HMW 方案。</i></div>
+        </div>
+
+        <div class="section-h"><span class="num">02</span><h3>因果模型 · 每个功能都要有「因为」</h3><span class="rule"></span></div>
+        <p class="lead" style="margin-bottom:14px">
+          金字塔负责「有没有漏」，因果链负责「该不该做」。每一行读作：<em>因为</em>用户遇到这个问题，<em>所以</em>产品需要这项能力，<em>于是</em>落成这组功能，<em>最终</em>用这个指标验收。
+        </p>
+        <div class="causal">
+          <div class="causal-head"><span>需求</span><span>用户问题（Because）</span><span>产品能力（So）</span><span>功能设计（Thus）</span><span>验收指标</span></div>
+          <div class="causal-row">
+            <div class="rid">R1</div>
+            <div class="cell">做题卡住时没人讲，拍照发群里等半天；直接给答案等于白做，抄完还是不会。</div>
+            <div class="cell"><b>引导式解题</b><br>只推进「下一步」，不交付终局答案。</div>
+            <div class="cell">输入/拍照题目 → 分步引导卡 → 追问式提问 → 掌握确认后才解锁答案</div>
+            <div class="kpi-cell">分步完成率 ≥55%<br>答案直达率 ≤5%</div>
+          </div>
+          <div class="causal-row">
+            <div class="rid">R2</div>
+            <div class="cell">知道该学但坐不住，一天下来也不知道自己到底学了多少。</div>
+            <div class="cell"><b>专注激励</b><br>把不可见的时间变成可积累的记录。</div>
+            <div class="cell">番茄计时 → 分心温柔提醒 → 专注统计 → 连续打卡 → 白噪音沉浸</div>
+            <div class="kpi-cell">单次完成率 ≥60%<br>周专注时长 ≥8h</div>
+          </div>
+          <div class="causal-row">
+            <div class="rid">R3</div>
+            <div class="cell">要注册、要授权、要手机号，索性关掉；笔记数据也不想交出去。</div>
+            <div class="cell"><b>零门槛访问 + 数据主权</b><br>打开即用，数据留在本地。</div>
+            <div class="cell">免登录进入 → 本地存储自动加载 → 今日看板 → JSON 导入/导出 → 一键清除</div>
+            <div class="kpi-cell">打开到可操作 ≤3s<br>注册流失 = 0</div>
+          </div>
+          <div class="causal-row">
+            <div class="rid">R4</div>
+            <div class="cell">计划列得很漂亮，坚持不了三天；改一次计划比重新列还麻烦。</div>
+            <div class="cell"><b>计划编排</b><br>让调整计划的成本低于放弃计划。</div>
+            <div class="cell">目标输入 → AI 生成周计划 → 拖拽改期/改时段 → 每日打卡 → 完成率反馈</div>
+            <div class="kpi-cell">计划完成率 ≥50%<br>周计划使用 ≥3 次</div>
+          </div>
+          <div class="causal-row">
+            <div class="rid">R5</div>
+            <div class="cell">错题散在纸上、相册里、聊天记录里，考前想复习却找不到。</div>
+            <div class="cell"><b>错题沉淀</b><br>让错题自动进入可复习、可打印的队列。</div>
+            <div class="cell">自动归集 → 科目/错因分类 → 复习队列 → 掌握度标记 → PDF 导出打印</div>
+            <div class="kpi-cell">7 日复习率 ≥40%<br>导出成功率 100%</div>
+          </div>
+        </div>
+
+        <div class="section-h"><span class="num">03</span><h3>功能结构表（7 模块 / 35 功能点）</h3><span class="rule"></span></div>
+        <div class="tbl-wrap">
+          <table class="fn-table">
+            <colgroup><col style="width:15%"><col style="width:36%"><col style="width:12%"><col style="width:13%"><col style="width:9%"><col style="width:15%"></colgroup>
+            <thead><tr><th>模块</th><th>功能点</th><th>承接需求</th><th>KANO 属性</th><th>优先级</th><th>落地版本</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="mod"><b>M1 学习台</b><br><span class="cnt">4 个</span></td>
+                <td><span class="chip">免登录直接进入</span><span class="chip">本地数据自动加载</span><span class="chip">今日学习看板</span><span class="chip">快捷四入口</span></td>
+                <td>R3</td>
+                <td><span class="tag tag-M">M 必备</span></td>
+                <td><span class="prio P0">P0</span></td>
+                <td>V0.1</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>M2 专注引擎</b><br><span class="cnt">7 个</span></td>
+                <td><span class="chip">番茄计时</span><span class="chip">自定义时长</span><span class="chip">分心温柔提醒</span><span class="chip">专注统计</span><span class="chip">连续打卡</span><span class="chip">白噪音</span><span class="chip hmw">虚拟同桌（HMW-S2）</span></td>
+                <td>R2</td>
+                <td><span class="tag tag-A">A 魅力</span></td>
+                <td><span class="prio P2">P2</span></td>
+                <td>V1.0 / V2.0</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>M3 AI 解题</b><br><span class="cnt">6 个</span></td>
+                <td><span class="chip">文字输入题目</span><span class="chip">拍照识题</span><span class="chip">分步引导卡</span><span class="chip">追问互动</span><span class="chip">掌握确认</span><span class="chip">答案解锁</span></td>
+                <td>R1</td>
+                <td><span class="tag tag-O">O 期望</span></td>
+                <td><span class="prio P1">P1</span></td>
+                <td>V0.5 / V1.5</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>M4 错题闭环</b><br><span class="cnt">6 个</span></td>
+                <td><span class="chip">自动归集</span><span class="chip">科目分类</span><span class="chip">错因标签</span><span class="chip">复习队列</span><span class="chip">PDF 导出打印</span><span class="chip hmw">错题重练（HMW-S3）</span></td>
+                <td>R5</td>
+                <td><span class="tag tag-O">O 期望</span></td>
+                <td><span class="prio P1">P1</span></td>
+                <td>V0.5 / V1.0</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>M5 计划管理</b><br><span class="cnt">5 个</span></td>
+                <td><span class="chip">目标与截止日输入</span><span class="chip">AI 生成周计划</span><span class="chip">拖拽改期</span><span class="chip">每日打卡</span><span class="chip">完成反馈</span></td>
+                <td>R4</td>
+                <td><span class="tag tag-A">A 魅力</span></td>
+                <td><span class="prio P2">P2</span></td>
+                <td>V1.0</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>M6 数据成长</b><br><span class="cnt">3 个</span></td>
+                <td><span class="chip">周学习报告</span><span class="chip">时长/题量/正确率可视化</span><span class="chip hmw">成就徽章（HMW-S3）</span></td>
+                <td>R2 + R5</td>
+                <td><span class="tag tag-A">A 魅力</span></td>
+                <td><span class="prio P2">P2</span></td>
+                <td>V1.5 / V2.0</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>M7 设置与数据</b><br><span class="cnt">4 个</span></td>
+                <td><span class="chip">主题与字号</span><span class="chip">数据清除</span><span class="chip">隐私说明</span><span class="chip">JSON 导入导出</span></td>
+                <td>R3</td>
+                <td><span class="tag tag-M">M 必备</span></td>
+                <td><span class="prio P0">P0</span></td>
+                <td>V1.0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted" style="margin-top:10px">合计 4 + 7 + 6 + 6 + 5 + 3 + 4 = 35 个功能点。红色标记的 3 个功能来自 HMW 优化方案的收敛结果（S2 线上自习室、S3 专注可视化），属于原 5 条需求之外的增补，因此排在 V2.0。</p>
+
+        <div class="section-h"><span class="num">04</span><h3>产品功能架构图（四层）</h3><span class="rule"></span></div>
+        <p class="lead" style="margin-bottom:16px">
+          架构按「用户从哪里进来 → 用到什么模块 → 依赖什么能力 → 数据存在哪里」四层组织。这样画的好处是：任何一个新需求都能快速判断它该落在哪一层，而不是堆到首页。
+        </p>
+        <div class="arch">
+          <div class="arch-grid">
+            <div class="arch-label"><b>L1 场景入口</b>用户从哪进入</div>
+            <div class="arch-chips">
+              <span class="arch-chip dark">免登录打开</span>
+              <span class="arch-chip dark">今日学习台</span>
+              <span class="arch-chip dark">专注全屏</span>
+              <span class="arch-chip dark">AI 解题浮层</span>
+              <span class="arch-chip dark">错题本</span>
+              <span class="arch-chip dark">计划周视图</span>
+            </div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-label"><b>L2 功能模块</b>7 个用户任务单元</div>
+            <div class="arch-chips">
+              <span class="arch-chip mid">M1 学习台</span>
+              <span class="arch-chip mid">M2 专注引擎</span>
+              <span class="arch-chip mid">M3 AI 解题</span>
+              <span class="arch-chip mid">M4 错题闭环</span>
+              <span class="arch-chip mid">M5 计划管理</span>
+              <span class="arch-chip mid">M6 数据成长</span>
+              <span class="arch-chip mid">M7 设置与数据</span>
+            </div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-label"><b>L3 能力服务</b>可复用的底层能力</div>
+            <div class="arch-chips">
+              <span class="arch-chip">计时引擎</span>
+              <span class="arch-chip">分步讲解策略</span>
+              <span class="arch-chip">题目识别（OCR）</span>
+              <span class="arch-chip">错题归集</span>
+              <span class="arch-chip">计划生成</span>
+              <span class="arch-chip">统计计算</span>
+              <span class="arch-chip">本地存储</span>
+              <span class="arch-chip">导出服务</span>
+            </div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-label"><b>L4 数据底座</b>数据归用户所有</div>
+            <div class="arch-chips">
+              <span class="arch-chip warm">学习记录</span>
+              <span class="arch-chip warm">错题数据</span>
+              <span class="arch-chip warm">计划数据</span>
+              <span class="arch-chip warm">配置与偏好</span>
+              <span class="arch-chip warm">IndexedDB / LocalStorage</span>
+            </div>
+            <div class="arch-arrow" style="color:var(--line)">— — —</div>
+            <div class="arch-label"><b>支撑体系</b>横切四层</div>
+            <div class="arch-chips">
+              <span class="arch-chip">隐私与数据主权</span>
+              <span class="arch-chip">内容安全审核</span>
+              <span class="arch-chip">埋点与实验</span>
+              <span class="arch-chip">成本与限流</span>
+            </div>
+          </div>
+        </div>
+        <div class="grid cols-3" style="margin-top:18px">
+          <div class="card"><h4>为什么入口层单独画</h4><p>学习产品的流失发生在「打开之后 30 秒内」。把六个入口显性画出来，才能检查每个入口是否都能一步到达核心动作。</p></div>
+          <div class="card"><h4>为什么能力层不跟模块一一对应</h4><p>能力要复用：分步讲解策略同时服务 AI 解题与错题重练，统计计算同时服务专注与报告。能力层抽出来，V2.0 加功能时不必重写。</p></div>
+          <div class="card"><h4>为什么数据层放最底</h4><p>免登录意味着没有服务端账号体系，数据必须落在本地且可导出。数据层是「数据主权」这条需求的物理落点。</p></div>
+        </div>
+    </section>
+
+    <section class="section" id="sec-version">
+      <p class="kicker">STEP 11 · 版本规划</p>
+      <h2>十二、版本路线：五个版本，每一步都能交付</h2>
+      <p class="ch-lead">版本规划不是把 35 个功能平均切五份，而是每一版都回答一个具体问题：V0.1 验证「能不能打开就用」，V0.5 验证「讲解 + 错题闭环是否成立」，V1.0 验证「陌生人愿不愿意留下」，之后才谈增长与壁垒。</p>
+      <div class="grid cols-4">
+          <div class="card kpi"><b>1 人</b><span>独立开发（我）</span></div>
+          <div class="card kpi"><b>10–15h</b><span>每周可投入工时</span></div>
+          <div class="card kpi"><b>0 元</b><span>服务器与托管预算</span></div>
+          <div class="card kpi"><b>20 周</b><span>V0.1 → V2.0 全周期</span></div>
+        </div>
+        <p class="muted" style="margin-top:10px">现实约束直接决定技术选型：单文件 HTML + 原生 JS + IndexedDB，不引框架、不做后端、AI 能力接现成大模型 API 并设每日免费额度，保证「零预算也能跑起来」。</p>
+
+        <div class="section-h"><span class="num">01</span><h3>版本时间轴</h3><span class="rule"></span></div>
+        <div class="ver-tl">
+          <div class="ver-node"><div class="v">V0.1</div><div class="w">第 1–2 周 · 约 30h</div><div class="g">骨架版：免登录 + 番茄计时 + 今日看板，先证明「打开就能用」。</div></div>
+          <div class="ver-node"><div class="v">V0.5</div><div class="w">第 3–5 周 · 约 45h</div><div class="g">闭环版：AI 文本讲解 + 错题自动归集，跑通「卡住→讲→沉淀」。</div></div>
+          <div class="ver-node now"><div class="v">V1.0</div><div class="w">第 6–9 周 · 约 60h</div><div class="g">可对外版：统计、计划拖拽、PDF 导出、数据管理，达到可公测、可演示。</div></div>
+          <div class="ver-node"><div class="v">V1.5</div><div class="w">第 10–14 周 · 约 70h</div><div class="g">增长版：拍照识题、自适应番茄、复习队列、周报，主攻次周留存。</div></div>
+          <div class="ver-node"><div class="v">V2.0</div><div class="w">第 15–20 周 · 约 80h</div><div class="g">差异化版：虚拟同桌、错题重练、成就体系，建立不被抄走的产品壁垒。</div></div>
+        </div>
+        <p class="muted">当前作品集对应 V1.0 的设计与演示形态：功能架构、信息架构与原型均已按 V1.0 范围绘制，V1.5 / V2.0 仅做位置预留。</p>
+
+        <div class="section-h"><span class="num">02</span><h3>版本对照表：每一版做成什么样子</h3><span class="rule"></span></div>
+        <div class="tbl-wrap">
+          <table class="fn-table">
+            <colgroup><col style="width:9%"><col style="width:10%"><col style="width:17%"><col style="width:24%"><col style="width:16%"><col style="width:13%"><col style="width:11%"></colgroup>
+            <thead><tr><th>版本</th><th>周期</th><th>版本目标</th><th>新增功能</th><th>交付形态</th><th>验收指标</th><th>本版不做</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="mod"><b>V0.1</b></td>
+                <td>第 1–2 周</td>
+                <td>验证「零门槛进入 + 能开始专注」是否成立</td>
+                <td>M1 全部（4）、M2 番茄计时与自定义时长（2）</td>
+                <td>单文件 HTML，双击即可运行</td>
+                <td>打开到可操作 ≤3 秒；计时功能可用率 100%；自测 3 个场景不中断</td>
+                <td>不做 AI、不做错题、不做计划</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>V0.5</b></td>
+                <td>第 3–5 周</td>
+                <td>验证「卡住有人讲 + 错题自动沉淀」这条核心闭环</td>
+                <td>M3 文字输入、分步引导卡、追问、掌握确认（4）、M4 自动归集与分类（3）</td>
+                <td>接入大模型 API，本地缓存讲解记录；附配置页</td>
+                <td>10 名种子用户；分步完成率 ≥55%；答案直达率 ≤5%</td>
+                <td>不做拍照识题、不做导出</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>V1.0</b></td>
+                <td>第 6–9 周</td>
+                <td>做到「可对外公测、可作为作品集演示」</td>
+                <td>M2 统计/打卡/提醒/白噪音（4）、M4 PDF 导出（1）、M5 全部（5）、M7 全部（4）</td>
+                <td>静态托管上线 + 移动端适配；支持导出 PDF 与 JSON</td>
+                <td>20 人试用；次周留存 ≥25%；PDF 导出成功率 100%；移动端无横向滚动</td>
+                <td>不做拍照识题、不做社交</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>V1.5</b></td>
+                <td>第 10–14 周</td>
+                <td>把「用过一次」变成「下周还来」</td>
+                <td>M3 拍照识题（1）、M2 自适应番茄（1）、M4 复习队列（1）、M6 周报与可视化（2）</td>
+                <td>升级为 PWA，可离线打开；周报支持分享图</td>
+                <td>次周留存 ≥30%；错题 7 日复习率 ≥40%；周报查看率 ≥50%</td>
+                <td>不做多人自习室</td>
+              </tr>
+              <tr>
+                <td class="mod"><b>V2.0</b></td>
+                <td>第 15–20 周</td>
+                <td>建立差异化壁垒，让竞品短期抄不走</td>
+                <td>M2 虚拟同桌（1）、M4 错题重练（1）、M6 成就徽章（1），剩余额度用于打磨</td>
+                <td>可选的轻量账号与多端同步（自建，不依赖第三方登录）</td>
+                <td>NPS ≥40；主动分享率 ≥10%；连续 7 日活跃 ≥15%</td>
+                <td>不做信息流、不做社区</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-h"><span class="num">03</span><h3>迭代节奏与准入标准</h3><span class="rule"></span></div>
+        <div class="grid cols-2">
+          <div class="card pos-card">
+            <h4>双周迭代 · 每次只推三件事</h4>
+            <p>每个迭代固定节奏：第 1 天定范围（从本版功能池取 3 项）、第 2–8 天开发、第 9 天自测与埋点、第 10 天复盘并更新下一迭代。范围一旦锁定，新增需求进「下版本池」，不插队。</p>
+          </div>
+          <div class="card pos-card">
+            <h4>完成定义（DoD）</h4>
+            <p>功能算「完成」必须同时满足：① 主流程可走通；② 空态、失败态、加载态都有界面；③ 数据落本地且刷新不丢；④ 有一个可观测指标；⑤ 移动端 375px 宽不破版。缺一条就回到开发。</p>
+          </div>
+        </div>
+        <div class="card pos-card" style="margin-top:16px;border-left:4px solid var(--cinnabar)">
+          <h4>版本风险与应对</h4>
+          <p><b>风险一：AI 成本与限流。</b>应对：每日免费额度 + 讲解结果本地缓存 + 超限时降级为「思路提示模板」。<b>风险二：一个人开发导致范围失控。</b>应对：以本表功能池为准，任何新想法先进 V2.0 之后的池子。<b>风险三：免登录导致换设备丢数据。</b>应对：V1.0 就提供 JSON 导出/导入，V2.0 再谈可选同步。</p>
+        </div>
+    </section>
+
+    <section class="section" id="sec-ia">
+      <p class="kicker">STEP 12 · 信息架构</p>
+      <h2>十三、信息架构：集中为主，分发为辅</h2>
+      <p class="ch-lead">功能结构回答「有什么」，信息架构回答「怎么摆、从哪进、先看到什么」。判断依据只有一条：用户打开产品时，是「目标明确地想找某个功能」，还是「不知道今天该干什么」。前者适合集中式，后者需要分发式。</p>
+      <div class="section-h"><span class="num">01</span><h3>组织模式判定：集中式 vs 分发式</h3><span class="rule"></span></div>
+        <div class="tbl-wrap">
+          <table class="fn-table">
+            <colgroup><col style="width:16%"><col style="width:21%"><col style="width:21%"><col style="width:42%"></colgroup>
+            <thead><tr><th>维度</th><th>集中式</th><th>分发式</th><th>AI 自习室的判定</th></tr></thead>
+            <tbody>
+              <tr><td class="mod"><b>适用前提</b></td><td>用户目标明确、功能高频、内容量大</td><td>用户目标模糊、任务连续、需要被引导</td><td>两种场景同时存在：早上打开时目标模糊（不知道该学什么），做题卡住时目标明确（想知道下一步）</td></tr>
+              <tr><td class="mod"><b>典型形态</b></td><td>首页聚合 + 分类导航 + 搜索</td><td>场景卡片 / 浮层 / 按任务推送</td><td>学习台聚合「今天做什么」，解题用全局浮层按需唤起</td></tr>
+              <tr><td class="mod"><b>优点</b></td><td>结构稳定、可预期、易扩展</td><td>路径短、认知成本低、贴合场景</td><td>集中保证「打开就知道干什么」，分发保证「卡住时不用找入口」</td></tr>
+              <tr><td class="mod"><b>风险</b></td><td>首页变成功能堆砌，用户不知道先点哪个</td><td>入口藏得深，用户找不到功能</td><td>用「一个主按钮 + 四宫格」控制首页密度；解题浮层保留常驻唤起方式</td></tr>
+              <tr><td class="mod"><b>本项目结论</b></td><td colspan="2" style="text-align:center"><b>采用混合式：L0 学习台集中承载「今天做什么」，四类操作以任务卡分发；AI 解题、专注计时为全局分发入口；错题本与计划为独立页面（需要浏览与批量操作）。</b></td><td>这样既不会把首页堆成九宫格，也不会让「讲题」这个核心能力被埋进二级页面</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-h"><span class="num">02</span><h3>信息架构树（L0 → L1 → L2）</h3><span class="rule"></span></div>
+        <div class="ia-box">
+          <div class="ia-root">AI 自习室 · 学习台（L0 唯一入口）</div>
+          <div class="ia-branches">
+            <div class="ia-col">
+              <h5>① 今日 <span>L1 · 默认落地页</span></h5>
+              <div class="ia-leaf"><b>今日任务卡</b>：3 件事，按优先级排</div>
+              <div class="ia-leaf"><b>专注入口</b>：主按钮，一步进计时</div>
+              <div class="ia-leaf"><b>四宫格</b>：讲题 / 错题 / 计划 / 统计</div>
+              <div class="ia-leaf"><b>连续打卡</b>：天数与本周时长</div>
+            </div>
+            <div class="ia-col">
+              <h5>② 专注 <span>L1 / L2 · 全屏</span></h5>
+              <div class="ia-leaf"><b>计时页</b>：模式切换、当前任务</div>
+              <div class="ia-leaf"><b>分心记录</b>：轻量标记，不打断计时</div>
+              <div class="ia-leaf"><b>专注统计</b>：日/周时长、完成率</div>
+              <div class="ia-leaf"><b>历史记录</b>：按日期回看</div>
+            </div>
+            <div class="ia-col">
+              <h5>③ 解题 <span>L1 · 全局浮层</span></h5>
+              <div class="ia-leaf"><b>输入题目</b>：文字 / 拍照</div>
+              <div class="ia-leaf"><b>分步引导</b>：一步一提示</div>
+              <div class="ia-leaf"><b>追问</b>：针对某一步继续问</div>
+              <div class="ia-leaf"><b>解题历史</b>：最近 20 道，可回看</div>
+            </div>
+            <div class="ia-col">
+              <h5>④ 错题 <span>L1 / L2 · 独立页</span></h5>
+              <div class="ia-leaf"><b>错题列表</b>：题干、错因、掌握度</div>
+              <div class="ia-leaf"><b>筛选</b>：科目 / 错因 / 待复习</div>
+              <div class="ia-leaf"><b>复习队列</b>：按遗忘曲线排序</div>
+              <div class="ia-leaf"><b>导出</b>：PDF 打印版</div>
+            </div>
+            <div class="ia-col">
+              <h5>⑤ 计划 <span>L1 / L2 · 独立页</span></h5>
+              <div class="ia-leaf"><b>周视图</b>：7 列任务块</div>
+              <div class="ia-leaf"><b>目标</b>：截止日与进度</div>
+              <div class="ia-leaf"><b>拖拽改期</b>：2 步内完成</div>
+              <div class="ia-leaf"><b>打卡</b>：完成 / 顺延 / 放弃</div>
+            </div>
+            <div class="ia-col">
+              <h5>⑥ 我的 <span>L1 · 设置与数据</span></h5>
+              <div class="ia-leaf"><b>数据管理</b>：导出 / 导入 / 清除</div>
+              <div class="ia-leaf"><b>偏好</b>：主题、字号、白噪音</div>
+              <div class="ia-leaf"><b>隐私说明</b>：数据存哪、传给谁</div>
+              <div class="ia-leaf"><b>AI 额度</b>：今日剩余次数</div>
+            </div>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:10px">层级控制在三层以内：L0 学习台 → L1 六个分区 → L2 具体页面/浮层。超过三层会把「开始学习」这件事变成寻路游戏。</p>
+
+        <div class="section-h"><span class="num">03</span><h3>导航体系：三端各一套，术语不变</h3><span class="rule"></span></div>
+        <div class="grid cols-3">
+          <div class="card pos-card">
+            <h4>桌面端 · 侧栏 + 顶栏</h4>
+            <p>左侧常驻 6 个图标（今日/专注/解题/错题/计划/我的），顶部只显示当前分区名与今日日期。不做多级菜单，不做折叠面板。</p>
+          </div>
+          <div class="card pos-card">
+            <h4>移动端 · 底部 Tab + 悬浮键</h4>
+            <p>底部 4 个 Tab（今日/专注/错题/我的），计划收进「今日」的任务卡里；解题用右下角常驻悬浮键，因为它是最高频的「临时需求」。</p>
+          </div>
+          <div class="card pos-card">
+            <h4>全局 · 一个唤起方式</h4>
+            <p>任何时候按 <b>⌘K / 点悬浮键</b> 都能唤起解题浮层，且自动带上当前页面上下文（正在做哪道题、哪个科目）。</p>
+          </div>
+        </div>
+
+        <div class="section-h"><span class="num">04</span><h3>一次学习会话的信息流转</h3><span class="rule"></span></div>
+        <div class="card pos-card">
+          <div class="flow" style="justify-content:flex-start;margin:2px 0 12px">
+            <span class="step">打开看板</span><span class="arrow">→</span>
+            <span class="step">开始专注</span><span class="arrow">→</span>
+            <span class="step">卡住解题</span><span class="arrow">→</span>
+            <span class="step">讲完入错题</span><span class="arrow">→</span>
+            <span class="step">回计划打卡</span><span class="arrow">→</span>
+            <span class="step">周报再来</span>
+          </div>
+          <p>信息的传递方向是单向的：<b>任务</b>从计划流向专注，<b>题目</b>从解题流向错题，<b>行为</b>从各模块流向统计，<b>结论</b>从统计回流到下次的任务排序。任何一环断裂，用户就会退回「用手机刷十分钟再学」的旧习惯。</p>
+        </div>
+
+        <div class="section-h"><span class="num">05</span><h3>命名规范：界面说人话，不说技术</h3><span class="rule"></span></div>
+        <div class="tbl-wrap">
+          <table class="fn-table">
+            <colgroup><col style="width:22%"><col style="width:22%"><col style="width:26%"><col style="width:30%"></colgroup>
+            <thead><tr><th>内部功能名</th><th>界面用语</th><th>不使用的说法</th><th>理由</th></tr></thead>
+            <tbody>
+              <tr><td>AI 习题分步讲解</td><td>“讲讲这道题” / “下一步”</td><td>AI 智能解析、大模型解答</td><td>用户关心能不能讲明白，不关心用了什么模型</td></tr>
+              <tr><td>番茄专注</td><td>“开始专注”</td><td>启动番茄钟、番茄工作法</td><td>番茄是工具术语，用户的目标是「开始学」</td></tr>
+              <tr><td>免登录</td><td>界面不出现任何「登录」字样</td><td>游客模式、未登录</td><td>出现「未登录」会让用户误以为功能受限</td></tr>
+              <tr><td>错题自动归集</td><td>“错题本”</td><td>错题库、错题集散地</td><td>同一事物只用一个名字，避免用户建两套认知</td></tr>
+              <tr><td>AI 学习计划</td><td>“这周的计划”</td><td>智能排程、学习路径规划</td><td>降低理解成本，直接说时间范围</td></tr>
+            </tbody>
+          </table>
+        </div>
+    </section>
+
+    <section class="section" id="sec-monetize">
+      <p class="kicker">STEP 13 · 商业化</p>
+      <h2>十四、商业化与变现模式</h2>
+      <p class="ch-lead">产品能活下去才谈得上价值。这一章把「谁付钱、为什么付、什么时候付」算成一张能复核的账，并给出付费墙的边界：哪些功能必须免费，哪些功能天然适合收费。</p>
+      <div class="section-h"><span class="num">01</span><h3>变现逻辑：先有「值得付」的时刻，再谈收费</h3><span class="rule"></span></div>
+      <p>自习室类产品的付费意愿集中在两个窗口：<b>考前 30 天的冲刺期</b>（时间紧、愿意为确定性买单）和<b>连续专注 7 天后的习惯养成期</b>（已有投入、愿意为连续性买单）。所以不做「全功能订阅」，而用「基础永久免费 + 冲刺短订阅 + 单点增值」三段式，在用户动机最强的时刻收钱。</p>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card kpi"><b>¥0</b><span>基础功能永久免费，不设试用期</span></div>
+        <div class="card kpi"><b>¥15<em style="font-style:normal;font-size:13px;color:#64748b">/月</em></b><span>自习会员（主力档）</span></div>
+        <div class="card kpi"><b>¥29</b><span>考前 30 天冲刺包</span></div>
+      </div>
+
+      <div class="section-h"><span class="num">02</span><h3>三档权益边界</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:19%"><col style="width:23%"><col style="width:32%"><col style="width:26%"></colgroup>
+          <thead><tr><th>权益</th><th>免费版 ¥0</th><th>自习会员 ¥15/月 · ¥98/年</th><th>冲刺包 ¥29 / 30 天</th></tr></thead>
+          <tbody>
+            <tr><td>番茄专注 / 白噪音</td><td>不限</td><td>不限 + 自适应时长</td><td>不限</td></tr>
+            <tr><td>AI 讲题</td><td><b>每天 5 次</b></td><td>不限（公平使用）</td><td>不限</td></tr>
+            <tr><td>错题本容量</td><td>50 道</td><td>不限</td><td>不限</td></tr>
+            <tr><td>PDF 导出</td><td>每月 1 次</td><td>不限，按科目分册</td><td>不限 + 错因统计页</td></tr>
+            <tr><td>学习报告</td><td>周报简版</td><td>周报 + 月报 + 趋势对比</td><td>周报 + 考前诊断</td></tr>
+            <tr><td>计划模板库</td><td>3 套</td><td>全部 20 套 + AI 生成</td><td>全部</td></tr>
+            <tr><td>数据备份</td><td>本地导出 JSON</td><td>云端备份（可选登录）</td><td>云端备份</td></tr>
+            <tr><td>界面主题</td><td>默认 1 套</td><td>极简主题 4 套</td><td>默认 1 套</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">定价参照：同类学习工具月费集中在 ¥12–¥25（番茄ToDo 会员 ¥12/月、扇贝会员 ¥18/月、Notion AI 约 ¥70/月）。自习室面向学生，取 ¥15 为心理舒适区，年付折到 5.4 折用于拉长生命周期。</p>
+
+      <div class="section-h"><span class="num">03</span><h3>付费墙：只锁「深度」，不锁「开始」</h3><span class="rule"></span></div>
+      <p>免费版必须能完整跑通「打开 → 专注 → 问一道题 → 错题入本」这条闭环，否则用户连价值都验证不了；被锁的只能是<b>规模化使用</b>与<b>沉淀之后的加工</b>。</p>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card" style="padding:18px 20px;border-left:4px solid #16a34a;background:#fff">
+          <h4 style="margin-top:0;color:#15803d">永远免费 · 价值验证区</h4>
+          <p style="font-size:13.5px;margin:0 0 6px">番茄计时、白噪音、每日 5 次 AI 讲题、50 道错题、周报简版、本地数据导出。</p>
+          <p style="font-size:12.5px;margin:0;color:#64748b">理由：这四件事决定「有没有用」，任何一道门槛都会直接杀死留存。</p>
+        </div>
+        <div class="card" style="padding:18px 20px;border-left:4px solid #2563eb;background:#fff">
+          <h4 style="margin-top:0;color:#1d4ed8">付费解锁 · 规模与加工区</h4>
+          <p style="font-size:13.5px;margin:0 0 6px">无限讲题、错题分册 PDF、月报与趋势、计划模板库、云端备份、主题。</p>
+          <p style="font-size:12.5px;margin:0;color:#64748b">理由：这些需求只在「已经坚持学」之后才出现，付费点与价值点天然对齐。</p>
+        </div>
+      </div>
+
+      <div class="section-h"><span class="num">04</span><h3>单位经济模型（假设测算，口径可复核）</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:26%"><col style="width:52%"><col style="width:22%"></colgroup>
+          <thead><tr><th>项目</th><th>测算口径</th><th>数值</th></tr></thead>
+          <tbody>
+            <tr><td>单次 AI 讲题成本</td><td>混合小模型 + 40% 缓存命中，按 token 计费</td><td>≈ ¥0.012</td></tr>
+            <tr><td>免费用户月成本</td><td>30 次讲题 + 带宽与存储</td><td>≈ ¥0.35</td></tr>
+            <tr><td>会员月成本</td><td>平均 250 次讲题 + 云备份</td><td>≈ ¥3.4</td></tr>
+            <tr><td>ARPPU</td><td>月付 ¥15 / 年付折月 ¥8.2，按 6 : 4 混合</td><td>≈ ¥11.0</td></tr>
+            <tr><td>打平付费率</td><td>会员收入 = 免费成本 + 会员变动成本</td><td><b>4.4%</b></td></tr>
+            <tr><td>付费率 8% 时毛利率</td><td>（收入 − 变动成本）÷ 收入</td><td>≈ 32%</td></tr>
+            <tr><td>CAC（每付费用户）</td><td>¥1.6/注册 ÷ 4% 付费转化</td><td>≈ ¥40</td></tr>
+            <tr><td>LTV</td><td>ARPPU ¥11 × 8 个月 × 68% 毛利</td><td>≈ ¥60</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>算下来结论很直接：<b>付费率低于 4.4% 时，用户越多亏得越多</b>。所以 V1.0 不追规模，先把「7 日留存 → 付费」这一段转化做上去；同时用「学习报告分享图 + 自习室邀请码」把 CAC 从 ¥1.6 压到 ¥0.9，LTV/CAC 才能从 1.5 走到 2.7 的健康区间。</p>
+
+      <div class="section-h"><span class="num">05</span><h3>为什么不做广告</h3><span class="rule"></span></div>
+      <div class="grid g3">
+        <div class="card" style="padding:16px 18px">
+          <h4 style="margin-top:0">与核心价值对冲</h4>
+          <p style="font-size:13px;margin:0">自习室卖的就是「不被打扰」。开屏、信息流、激励视频都会在专注场景里制造打断，等于用产品承诺换短期收入。</p>
+        </div>
+        <div class="card" style="padding:16px 18px">
+          <h4 style="margin-top:0">人群单价撑不住</h4>
+          <p style="font-size:13px;margin:0">学生人群 eCPM 低，日均 8 分钟使用时长只能换来几厘钱；为这点收入引入广告 SDK，反而增加包体与合规成本。</p>
+        </div>
+        <div class="card" style="padding:16px 18px">
+          <h4 style="margin-top:0">替代方案：内容合作</h4>
+          <p style="font-size:13px;margin:0">与教辅机构做「计划模板 / 题库联名」，按 CPS 分成，既不变现用户注意力，又能补充内容供给。</p>
+        </div>
+      </div>
+
+      <div class="section-h"><span class="num">06</span><h3>三条收入线的推进节奏</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:16%"><col style="width:14%"><col style="width:38%"><col style="width:32%"></colgroup>
+          <thead><tr><th>阶段</th><th>时间</th><th>主要动作</th><th>目标</th></tr></thead>
+          <tbody>
+            <tr><td>验证期</td><td>0–3 月</td><td>全功能免费，只验证「专注 → 讲题 → 错题」闭环与次周留存</td><td>付费率 0，次周留存 ≥ 25%</td></tr>
+            <tr><td>起步期</td><td>4–6 月</td><td>会员上线，先卖年付（¥98），把付费墙放在导出与无限讲题</td><td>付费率 2%，退款率 &lt; 5%</td></tr>
+            <tr><td>成长期</td><td>7–12 月</td><td>考前冲刺包 + 邀请码裂变，接入 3 所高校社团渠道</td><td>付费率 6%，CAC ≤ ¥1.2/注册</td></tr>
+            <tr><td>稳定期</td><td>13 月 +</td><td>教辅内容合作（联名模板 / 题库 CPS），开放班级版</td><td>付费率 8%，非订阅收入占 20%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <section class="section" id="sec-metrics">
+      <p class="kicker">STEP 14 · 指标与验证</p>
+      <h2>十五、指标、埋点与验证方案</h2>
+      <p class="ch-lead">原型评审最容易吵的两件事是「这个设计好不好」和「上线怎么判断成功」。这一章先把北极星指标钉死，再拆成可观测的漏斗与埋点，最后用 5 人可用性测试和 4 周 Go/No-Go 给出判定规则——让设计好坏变成可以被证伪的问题。</p>
+      <div class="section-h"><span class="num">01</span><h3>北极星指标：周人均有效专注分钟（WEM）</h3><span class="rule"></span></div>
+      <p>不自造 DAU 神话。自习室是<b>低频、高时长</b>场景，用日活会奖励「打卡式打开」，用注册数会奖励「拉新不看质量」。唯一能同时反映留存、时长与学习真实性的指标，是每周人均真正学进去的时间。</p>
+      <div class="card" style="padding:20px 22px;border-left:4px solid #2563eb;background:#f8fbff">
+        <h4 style="margin-top:0;color:#1d4ed8">WEM 计算口径</h4>
+        <p style="margin:0 0 8px;font-size:14px">WEM = 一周内全部有效专注分钟 ÷ 当周活跃用户数</p>
+        <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:2;color:#475569">
+          <li><b>有效专注</b>：单次计时 ≥ 25 分钟，且期间切后台累计 ≤ 3 分钟、无人工中断（中断即作废）</li>
+          <li><b>活跃用户</b>：当周至少产生 1 次有效专注或 1 次 AI 讲题</li>
+          <li><b>为什么不用总时长</b>：总时长会被少数重度用户拉高，掩盖「多数人没学进去」的事实</li>
+        </ul>
+      </div>
+
+      <div class="section-h"><span class="num">02</span><h3>指标树：把北极星拆成能改的动作</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:16%"><col style="width:26%"><col style="width:32%"><col style="width:26%"></colgroup>
+          <thead><tr><th>层级</th><th>指标</th><th>定义</th><th>可动的杠杆</th></tr></thead>
+          <tbody>
+            <tr><td>北极星</td><td><b>WEM</b></td><td>周人均有效专注分钟</td><td>—</td></tr>
+            <tr><td>一级因子</td><td>周人均会话数</td><td>一周内开始的专注次数</td><td>今日计划任务数、提醒触达率</td></tr>
+            <tr><td>一级因子</td><td>单次会话时长</td><td>每次专注平均分钟</td><td>默认番茄 25 分钟、自适应时长</td></tr>
+            <tr><td>一级因子</td><td>有效专注率</td><td>有效专注 ÷ 全部开始次数</td><td>挂机检测、白名单、锁机提示</td></tr>
+            <tr><td>二级因子</td><td>次周留存</td><td>本周新增中下周仍活跃的比例</td><td>首次会话 3 分钟内给到正反馈</td></tr>
+            <tr><td>二级因子</td><td>错题复习率</td><td>7 日内被复习的错题占比</td><td>复习队列、到期提醒</td></tr>
+            <tr><td>护栏指标</td><td>答案直达率</td><td>未看引导直接看答案的比例</td><td>引导卡交互、掌握确认</td></tr>
+            <tr><td>护栏指标</td><td>导出成功率</td><td>PDF 导出成功 ÷ 发起</td><td>导出链路稳定性</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-h"><span class="num">03</span><h3>核心漏斗与阶段目标</h3><span class="rule"></span></div>
+      <p>每一步都设「看得见的转化率」，否则原型评审只能靠感觉。下表左列是 V0.5 的种子用户基线（10 人小样本），右列是 V1.0 的 20 人试用目标。</p>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:26%"><col style="width:32%"><col style="width:21%"><col style="width:21%"></colgroup>
+          <thead><tr><th>漏斗步骤</th><th>判定条件</th><th>V0.5 基线</th><th>V1.0 目标</th></tr></thead>
+          <tbody>
+            <tr><td>① 打开 → 开始专注</td><td>首屏内点击「开始专注」</td><td>62%</td><td><b>70%</b></td></tr>
+            <tr><td>② 开始 → 完成 1 个番茄</td><td>计时自然结束，未中断</td><td>48%</td><td><b>60%</b></td></tr>
+            <tr><td>③ 完成 → 发起 AI 讲题</td><td>提交至少 1 道题</td><td>31%</td><td><b>45%</b></td></tr>
+            <tr><td>④ 讲题 → 错题入库</td><td>点击「加入错题本」</td><td>22%</td><td><b>35%</b></td></tr>
+            <tr><td>⑤ 入库 → 7 日内复习</td><td>到期后完成一次重做</td><td>—</td><td><b>40%</b></td></tr>
+            <tr><td>⑥ 次周回访</td><td>7 天后再次打开并专注</td><td>18%</td><td><b>25%</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-h"><span class="num">04</span><h3>埋点事件表（V1.0 必埋 10 条）</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:21%"><col style="width:27%"><col style="width:30%"><col style="width:22%"></colgroup>
+          <thead><tr><th>事件名</th><th>触发时机</th><th>关键属性</th><th>用于</th></tr></thead>
+          <tbody>
+            <tr><td><code>app_open</code></td><td>打开首屏</td><td>来源渠道、是否首次、是否从分享进入</td><td>渠道归因、裂变效果</td></tr>
+            <tr><td><code>focus_start</code></td><td>点击开始专注</td><td>预设时长、科目、是否来自计划任务</td><td>漏斗第 ① ② 层</td></tr>
+            <tr><td><code>focus_complete</code></td><td>计时自然结束</td><td>实际时长、切后台次数与时长</td><td>有效专注率</td></tr>
+            <tr><td><code>focus_abort</code></td><td>手动提前结束</td><td>已进行时长、放弃原因选项</td><td>中断归因</td></tr>
+            <tr><td><code>ask_start</code></td><td>提交题目</td><td>输入方式（文字/拍照）、科目、题面长度</td><td>需求强度</td></tr>
+            <tr><td><code>ask_step_view</code></td><td>查看第 n 步引导</td><td>步数、是否追问、停留时长</td><td>讲解质量</td></tr>
+            <tr><td><code>ask_master</code></td><td>点击「我懂了」</td><td>用时、此前是否展开答案</td><td><b>答案直达率</b></td></tr>
+            <tr><td><code>wrong_save</code></td><td>错题入本</td><td>错因标签、科目、来源（讲题/手动）</td><td>归档率、错因分布</td></tr>
+            <tr><td><code>review_done</code></td><td>完成一次错题复习</td><td>间隔天数、是否正确、用时</td><td>复习率</td></tr>
+            <tr><td><code>report_view</code></td><td>查看周报 / 月报</td><td>版本（简版/完整）、来源（通知/主动）</td><td>报告价值与分享意愿</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">埋点原则：一个事件只回答一个问题；属性里不放隐私内容（题干、答案不上报原文，只报长度与科目）。</p>
+
+      <div class="section-h"><span class="num">05</span><h3>可用性测试：5 人 × 3 个任务</h3><span class="rule"></span></div>
+      <div class="grid g2">
+        <div class="card" style="padding:18px 20px">
+          <h4 style="margin-top:0">测试设计</h4>
+          <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:2;color:#475569">
+            <li><b>对象</b>：5 人（3 名目标用户 + 2 名非目标用户，用于发现常识性断裂）</li>
+            <li><b>任务 A</b>：不注册，2 分钟内开始一次专注</li>
+            <li><b>任务 B</b>：问一道数学题，要求「只给思路不给答案」</li>
+            <li><b>任务 C</b>：把这道错题导出成 PDF 并说出文件在哪</li>
+            <li><b>方式</b>：出声思维 + 不提示，主持人不引导</li>
+          </ul>
+        </div>
+        <div class="card" style="padding:18px 20px">
+          <h4 style="margin-top:0">判定标准</h4>
+          <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:2;color:#475569">
+            <li><b>任务完成率</b>：单个任务 ≥ 80%（5 人中 4 人独立完成）</li>
+            <li><b>首次专注开始时长</b>：≤ 30 秒（从打开到计时开始）</li>
+            <li><b>SUS 量表</b>：≥ 70 分</li>
+            <li><b>回炉条件</b>：任一任务完成率 &lt; 80% 或 SUS &lt; 70，对应界面必须改版后复测</li>
+            <li><b>记录方式</b>：录屏 + 卡点时间戳 + 原话摘录，直接进下个迭代的需求池</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-h"><span class="num">06</span><h3>上线 4 周的 Go / No-Go</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:30%"><col style="width:26%"><col style="width:44%"></colgroup>
+          <thead><tr><th>观察项</th><th>达标线</th><th>不达标时的动作</th></tr></thead>
+          <tbody>
+            <tr><td>次周留存</td><td>≥ 25%</td><td>回到首次会话流程，重做「3 分钟内给到第一次正反馈」</td></tr>
+            <tr><td>WEM</td><td>≥ 90 分钟 / 周</td><td>检查番茄默认时长与中断原因分布</td></tr>
+            <tr><td>答案直达率</td><td>≤ 5%</td><td>引导卡改为强制分步，答案折叠到底部</td></tr>
+            <tr><td>白屏 / 崩溃率</td><td>&lt; 0.5%</td><td>暂停拉新，先修稳定性</td></tr>
+            <tr><td>反馈渠道有效反馈</td><td>≥ 20 条 / 4 周</td><td>补客服入口与反馈按钮的曝光位置</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>判定规则</b>：5 项中 ≥ 3 项达标 → 进入 V1.5 开发；≤ 2 项达标 → 不加功能，回到 V0.5 收敛范围重跑四周。这条规则写进迭代文档，避免「数据不好就加功能」的惯性。</p>
+
+    </section>
+
+    <section class="section" id="sec-proto">
+      <p class="kicker">STEP 15 · 原型设计</p>
+      <h2>十六、关键页面原型（V1.0 范围，8 屏）</h2>
+      <p class="ch-lead">按信息架构画出 8 个关键界面：学习台、专注全屏、解题浮层、错题本、计划周视图、学习报告、我的与数据，以及空态与异常。全部按 <b>375 × 812</b>（iPhone 常规逻辑尺寸，与真机 1:1）绘制，灰阶线框 + 一处主色，先确认「信息摆放与操作路径」，视觉细节留到 UI 阶段。</p>
+      <div class="proto-cta">
+        <div class="pc-l">
+          <div class="pc-t">在线体验这 8 屏 · 可点击跳转</div>
+          <div class="pc-d">浏览器里直接跑：点「开始专注」进专注页，底栏 Tab 可切页，「记一笔 / AI 重排 / 导出 PDF」都有即时反馈。下面是静态版面图，用于逐屏评审信息摆放。</div>
+        </div>
+        <div class="pc-r">
+          <a class="pc-btn pri" href="prototype.html">打开可交互原型 →</a>
+          <a class="pc-btn" href="download/ai-studyroom-prototype-ix.rp" download="AI自习室-原型-可交互-8屏.rp">下载 Axure 源文件</a>
+        </div>
+      </div>
+      <div class="wf-grid">
+          <!-- P1 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P1 学习台（默认落地页）</b><span>375 × 812 · 首屏</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <div class="sbar"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div class="pad" style="display:flex;justify-content:space-between;align-items:flex-start;padding-top:4px">
+                      <div>
+                        <div class="h1">AI 自习室</div>
+                        <div class="sub">周四 · 第 3 周 · 连续 12 天</div>
+                      </div>
+                      <div style="text-align:center;background:#E7EDE6;border-radius:12px;padding:6px 11px;margin-top:2px">
+                        <div style="font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;color:#234B3D;line-height:1.1">12</div>
+                        <div style="font-size:9px;color:#2C5E3F;letter-spacing:.5px">连续天</div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:16px">
+                      <div class="cx dark">
+                        <div class="lbl">今天 3 件事</div>
+                        <div style="display:flex;gap:9px;align-items:flex-start;padding:4px 0">
+                          <span class="cb"></span>
+                          <div style="flex:1"><b style="font-size:13px;font-weight:600">高数 · 极限 20 题</b>
+                            <div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:1px">预计 40 分钟</div></div>
+                          <span style="font-size:10.5px;color:rgba(255,255,255,.42);margin-top:3px">0/20</span>
+                        </div>
+                        <div style="display:flex;gap:9px;align-items:flex-start;padding:4px 0">
+                          <span class="cb"></span>
+                          <div style="flex:1"><b style="font-size:13px;font-weight:600">英语 · 阅读 2 篇</b>
+                            <div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:1px">预计 30 分钟</div></div>
+                          <span style="font-size:10.5px;color:rgba(255,255,255,.42);margin-top:3px">0/2</span>
+                        </div>
+                        <div style="display:flex;gap:9px;align-items:flex-start;padding:4px 0">
+                          <span class="cb"></span>
+                          <div style="flex:1"><b style="font-size:13px;font-weight:600">错题复习 12 道</b>
+                            <div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:1px">来自 10-19 至 10-22</div></div>
+                          <span style="font-size:10.5px;color:rgba(255,255,255,.42);margin-top:3px">0/12</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:12px">
+                      <div class="btn2 pri" style="height:58px;flex-direction:column;gap:0">
+                        <span style="font-size:15.5px;letter-spacing:.5px">开始专注 · 25:00</span>
+                        <span style="font-size:10px;font-weight:400;opacity:.85">今天第一组 · 推荐 25 分钟</span>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:9px">
+                      <div class="cx" style="padding:13px 12px;display:flex;gap:9px;align-items:center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#234B3D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="m9.5 9.5 2 2 3.5-3.5"/></svg>
+                        <div><b style="font-size:12.5px">讲讲这道题</b><div style="font-size:10px;color:#7C8A83">拍照 / 输入</div></div>
+                      </div>
+                      <div class="cx" style="padding:13px 12px;display:flex;gap:9px;align-items:center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#234B3D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>
+                        <div><b style="font-size:12.5px">错题本</b><div style="font-size:10px;color:#7C8A83">24 道 · 待复习 12</div></div>
+                      </div>
+                      <div class="cx" style="padding:13px 12px;display:flex;gap:9px;align-items:center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#234B3D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M8 4.5v-1M16 4.5v-1M3.5 9.5h17"/><path d="M7.5 13.5h4M7.5 17h6"/></svg>
+                        <div><b style="font-size:12.5px">这周的计划</b><div style="font-size:10px;color:#7C8A83">已完成 68%</div></div>
+                      </div>
+                      <div class="cx" style="padding:13px 12px;display:flex;gap:9px;align-items:center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#234B3D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9M10 20V4M16 20v-7M22 20V7"/></svg>
+                        <div><b style="font-size:12.5px">专注统计</b><div style="font-size:10px;color:#7C8A83">本周 6h20m</div></div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:12px">
+                      <div class="cx" style="padding:11px 13px;display:flex;gap:9px;align-items:flex-start;background:#F4F7F1;border-color:#DCE5D9">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#356350" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/></svg>
+                        <div>
+                          <div style="font-size:9.5px;letter-spacing:1.2px;color:#7C8A83">AI 建议</div>
+                          <div style="font-size:11.5px;line-height:1.6;margin-top:2px">昨天在「极限 · 第 2 组」卡了 3 次，今天先做 5 道同类题热身。</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:auto;padding-bottom:14px">
+                      <div class="cx" style="padding:12px 14px">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline">
+                          <span class="lbl" style="margin:0">本周</span><span style="font-size:10px;color:#9AA296">周一至今</span>
+                        </div>
+                        <div style="display:flex;margin-top:8px">
+                          <div style="flex:1"><b style="font-family:'Noto Serif SC',serif;font-size:16px;color:#234B3D">6h20m</b><div style="font-size:9.5px;color:#7C8A83">专注</div></div>
+                          <div style="flex:1"><b style="font-family:'Noto Serif SC',serif;font-size:16px;color:#234B3D">14 项</b><div style="font-size:9.5px;color:#7C8A83">完成</div></div>
+                          <div style="flex:1"><b style="font-family:'Noto Serif SC',serif;font-size:16px;color:#234B3D">68%</b><div style="font-size:9.5px;color:#7C8A83">正确率</div></div>
+                        </div>
+                        <div style="height:5px;border-radius:3px;background:#EFE8D6;margin-top:9px;overflow:hidden"><div style="width:68%;height:100%;background:#7FA07F"></div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tabs">
+                    <div class="on"><svg viewBox="0 0 24 24"><path d="M4 5.5h16v15H4z"/><path d="M8 3v4M16 3v4M4 10.5h16"/><path d="m8.5 14.8 2.2 2.2 4.3-4.3"/></svg>今日</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h8"/><circle cx="4.3" cy="7" r="1.1"/><circle cx="4.3" cy="12" r="1.1"/><circle cx="4.3" cy="17" r="1.1"/></svg>计划</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.1 4.1 1.9-4.1 1.9L12 15.5l-1.9-4.1L6 9.5l4.1-1.9z"/><path d="M18 15.8l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>解题</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>错题</div>
+                    <div><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20.5c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>我的</div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ① 今日</span>首屏只回答「今天做什么」，不放资讯与推荐；整屏只有一个主色块（开始专注），其余入口降为次级按钮。</div>
+          </div>
+
+          <!-- P2 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P2 专注全屏</b><span>375 × 812 · 计时中</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr" style="background:linear-gradient(180deg,#1E4234 0%,#17342B 52%,#11281F 100%);color:#EAF1EA">
+                  <div class="sbar" style="color:#EAF1EA"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 20px 0">
+                      <div>
+                        <div class="lbl" style="color:rgba(234,241,234,.5);margin-bottom:3px">专注中</div>
+                        <div style="font-size:15px;font-weight:600;letter-spacing:.5px">高数 · 极限</div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:rgba(234,241,234,.6);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 11px">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>退出
+                      </div>
+                    </div>
+
+                    <div style="position:relative;text-align:center;margin-top:34px">
+                      <svg width="234" height="234" viewBox="0 0 234 234">
+                        <circle cx="117" cy="117" r="105" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="9"/>
+                        <circle cx="117" cy="117" r="105" fill="none" stroke="#D9765A" stroke-width="9" stroke-linecap="round"
+                          stroke-dasharray="659.7" stroke-dashoffset="165" transform="rotate(-90 117 117)"/>
+                      </svg>
+                      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                        <div style="font-family:'Noto Serif SC',serif;font-size:54px;letter-spacing:2px;line-height:1">06:18</div>
+                        <div style="font-size:10.5px;color:rgba(234,241,234,.55);margin-top:9px;letter-spacing:.5px">剩余 · 已专注 18:42</div>
+                        <div style="font-size:11px;color:rgba(234,241,234,.75);margin-top:3px">第 3 组 / 共 5 组</div>
+                      </div>
+                    </div>
+
+                    <div style="display:flex;gap:7px;padding:0 20px;margin-top:26px">
+                      <div style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:12px;background:rgba(234,241,234,.92);color:#17342B;font-weight:600">25</div>
+                      <div style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(234,241,234,.8)">45</div>
+                      <div style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(234,241,234,.8)">60</div>
+                      <div style="flex:1.3;text-align:center;padding:7px 0;border-radius:9px;font-size:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(234,241,234,.8)">自适应</div>
+                    </div>
+
+                    <div style="margin:20px 20px 0;padding:13px 15px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13)">
+                      <div class="lbl" style="color:rgba(234,241,234,.45)">当前任务</div>
+                      <div style="font-size:13.5px;font-weight:600">极限 · 第 3 组（共 5 组）</div>
+                      <div style="font-size:10.5px;color:rgba(234,241,234,.55);margin-top:3px">本组 5 题 · 已做 2 题 · 手机已锁屏外</div>
+                    </div>
+
+                    <div style="margin:9px 20px 0;padding:11px 15px;border-radius:12px;border:1px dashed rgba(255,255,255,.24);display:flex;align-items:center;justify-content:space-between">
+                      <span style="font-size:11.5px;color:rgba(234,241,234,.6)">分心了？点一下记一笔</span>
+                      <span style="font-size:11px;color:#E3A98C">记一笔</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:18px">
+                      <span style="width:26px;height:6px;border-radius:3px;background:rgba(234,241,234,.85)"></span>
+                      <span style="width:26px;height:6px;border-radius:3px;background:rgba(234,241,234,.85)"></span>
+                      <span style="width:26px;height:6px;border-radius:3px;background:rgba(255,255,255,.18)"></span>
+                      <span style="width:26px;height:6px;border-radius:3px;background:rgba(255,255,255,.18)"></span>
+                      <span style="width:26px;height:6px;border-radius:3px;background:rgba(255,255,255,.18)"></span>
+                    </div>
+                    <div style="text-align:center;font-size:10.5px;color:rgba(234,241,234,.42);margin-top:9px">本组已完成 2 / 5 · 已开启勿扰，本组结束后提醒休息 5 分钟</div>
+
+                    <div style="margin-top:auto;padding:0 20px 10px">
+                      <div class="btn2 pri" style="height:50px;font-size:14px">结束并记录</div>
+                      <div style="text-align:center;font-size:10px;color:rgba(234,241,234,.4);margin-top:8px">结束后自动归档到「专注统计」，可补记分心次数</div>
+                    </div>
+                  </div>
+                  <div class="hbar"><i style="background:rgba(255,255,255,.45)"></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ② 专注</span>全屏去掉导航，只留一个主按钮；分心记录做成轻量标记而不是弹窗，避免「提醒」本身成为打断。</div>
+          </div>
+
+          <!-- P3 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P3 AI 解题浮层</b><span>375 × 812 · 底部抽屉</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <!-- 背后的学习台（压暗） -->
+                  <div style="position:absolute;inset:0;padding:56px 18px 0">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                      <div><div class="h1" style="font-size:19px">AI 自习室</div><div class="sub">周四 · 连续 12 天</div></div>
+                      <div style="width:38px;height:38px;border-radius:50%;background:#E7EDE6"></div>
+                    </div>
+                    <div style="height:118px;border-radius:13px;background:#234B3D;margin-top:16px"></div>
+                    <div style="height:56px;border-radius:12px;background:#BE4A2E;margin-top:12px"></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px">
+                      <div style="height:64px;border-radius:13px;background:#F1EADA"></div>
+                      <div style="height:64px;border-radius:13px;background:#F1EADA"></div>
+                    </div>
+                    <div style="height:74px;border-radius:13px;background:#F1EADA;margin-top:12px"></div>
+                  </div>
+                  <div style="position:absolute;inset:0;background:rgba(14,22,18,.68)"></div>
+                  <div class="sbar" style="color:#fff;position:relative;z-index:9"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody" style="justify-content:flex-end">
+                    <div style="background:#FBF8F0;border-radius:26px 26px 0 0;box-shadow:0 -14px 30px rgba(0,0,0,.18);padding:8px 0 0">
+                      <div style="width:38px;height:4px;border-radius:3px;background:#DDD5C2;margin:0 auto 10px"></div>
+                      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px 12px;border-bottom:1px solid #EFE8D8">
+                        <div>
+                          <div style="font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700">解题 · 第 2 步 / 共 4 步</div>
+                          <div style="display:flex;gap:4px;margin-top:7px">
+                            <span style="width:34px;height:4px;border-radius:2px;background:#234B3D"></span>
+                            <span style="width:34px;height:4px;border-radius:2px;background:#234B3D"></span>
+                            <span style="width:34px;height:4px;border-radius:2px;background:#E7DFCC"></span>
+                            <span style="width:34px;height:4px;border-radius:2px;background:#E7DFCC"></span>
+                          </div>
+                        </div>
+                        <div style="font-size:11.5px;color:#7C8A83;display:flex;align-items:center;gap:4px">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>关闭
+                        </div>
+                      </div>
+
+                      <div style="padding:14px 20px 0">
+                        <div class="cx" style="padding:11px 13px">
+                          <div class="lbl">题目</div>
+                          <div style="height:72px;background:#EAE3D2;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#9A927E;font-size:11px;letter-spacing:1px">题目截图</div>
+                          <div style="font-size:13px;margin-top:9px;font-weight:500">求 lim<sub>x→0</sub> (sin3x)/(2x) 的值</div>
+                        </div>
+
+                        <div class="cx dash" style="margin-top:10px;padding:11px 13px">
+                          <div class="lbl">第 2 步 · 提示</div>
+                          <div style="font-size:12.5px;line-height:1.65">先把分母的 2x 拆出来：<b style="color:#234B3D">sin3x / 3x</b> 的极限等于 1，剩下的系数怎么处理？</div>
+                        </div>
+
+                        <div class="cx" style="margin-top:10px;padding:11px 13px;background:#F7F2E4">
+                          <div class="lbl" style="margin-bottom:5px">我下一步想</div>
+                          <div style="font-size:12px;color:#A9A292">写下你的思路，AI 会接着你的想法讲…</div>
+                        </div>
+                      </div>
+
+                      <div style="display:flex;gap:9px;padding:12px 20px 6px">
+                        <div class="btn2" style="flex:1;height:46px;font-size:13px">再提示一点</div>
+                        <div class="btn2 pri" style="flex:1.35;height:46px;font-size:13px">我懂了，看答案</div>
+                      </div>
+                      <div style="text-align:center;font-size:9.5px;color:#A9A292;padding-bottom:12px">答案默认锁定 · 需要你来解锁</div>
+                    </div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ③ 解题</span>答案默认锁定，必须点「我懂了」才解锁；每步只给一个提示，避免一次给完导致直接抄答案。</div>
+          </div>
+
+          <!-- P4 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P4 错题本</b><span>375 × 812 · 独立页</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <div class="sbar"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 18px 0">
+                      <div style="display:flex;align-items:center;gap:9px">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2B3A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+                        <div>
+                          <div class="h1" style="font-size:19px">错题本</div>
+                          <div class="sub">24 道 · 本周新增 6 道</div>
+                        </div>
+                      </div>
+                      <div style="font-size:12px;color:#BE4A2E;border:1px solid #E5C4B8;background:#F9EDE7;border-radius:8px;padding:5px 10px">导出 PDF</div>
+                    </div>
+
+                    <div style="display:flex;gap:7px;padding:14px 18px 0;overflow:hidden">
+                      <span class="chip2 on">全部 24</span><span class="chip2">高数 14</span><span class="chip2">英语 10</span><span class="chip2">待复习 12</span>
+                    </div>
+
+                    <div style="padding:14px 18px 0;display:flex;flex-direction:column;gap:11px">
+                      <div class="cx" style="padding:13px 14px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9AA296">
+                          <span>10-22 · 高数 · 第 3 次</span><span class="tagx">计算失误</span>
+                        </div>
+                        <div style="font-size:13px;font-weight:600;margin-top:6px">lim(x→0) (sin3x)/(2x)</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px dashed #EFE8D8">
+                          <span style="font-size:10px;color:#9AA296">上次 3 天前 · 错 2 次</span>
+                          <span style="font-size:11px;color:#BE4A2E">重做 →</span>
+                        </div>
+                      </div>
+                      <div class="cx" style="padding:13px 14px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9AA296">
+                          <span>10-21 · 英语 · 第 2 次</span><span class="tagx">词义混淆</span>
+                        </div>
+                        <div style="font-size:13px;font-weight:600;margin-top:6px">attribute / contribute 辨析</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px dashed #EFE8D8">
+                          <span style="font-size:10px;color:#9AA296">今天到期复习</span>
+                          <span style="font-size:11px;color:#BE4A2E">重做 →</span>
+                        </div>
+                      </div>
+                      <div class="cx" style="padding:13px 14px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9AA296">
+                          <span>10-20 · 高数 · 第 1 次</span><span class="tagx b">步骤遗漏</span>
+                        </div>
+                        <div style="font-size:13px;font-weight:600;margin-top:6px">夹逼定理求 n→∞ 的极限</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px dashed #EFE8D8">
+                          <span style="font-size:10px;color:#9AA296">明天到期复习</span>
+                          <span style="font-size:11px;color:#BE4A2E">重做 →</span>
+                        </div>
+                      </div>
+                      <div class="cx" style="padding:13px 14px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9AA296">
+                          <span>10-19 · 英语 · 第 1 次</span><span class="tagx g">长难句</span>
+                        </div>
+                        <div style="font-size:13px;font-weight:600;margin-top:6px">非限制性定语从句的指代</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px dashed #EFE8D8">
+                          <span style="font-size:10px;color:#9AA296">已复习 1 次</span>
+                          <span style="font-size:11px;color:#BE4A2E">重做 →</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="text-align:center;font-size:9.5px;color:#A9A292;margin-top:12px">上滑加载更多 · 共 24 道 · 待复习 12 道</div>
+
+                    <div style="margin-top:auto;padding:0 18px 14px">
+                      <div class="cx" style="background:#F4EDDC;border-color:#E3DAC4;padding:11px 13px;display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-size:11px;color:#5C6A62;line-height:1.55">导出的 PDF 按科目分册<br>含题干、错因、正确解法</div>
+                        <div style="font-size:11.5px;color:#234B3D;font-weight:600">待复习 12 道 →</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tabs">
+                    <div><svg viewBox="0 0 24 24"><path d="M4 5.5h16v15H4z"/><path d="M8 3v4M16 3v4M4 10.5h16"/><path d="m8.5 14.8 2.2 2.2 4.3-4.3"/></svg>今日</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h8"/><circle cx="4.3" cy="7" r="1.1"/><circle cx="4.3" cy="12" r="1.1"/><circle cx="4.3" cy="17" r="1.1"/></svg>计划</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.1 4.1 1.9-4.1 1.9L12 15.5l-1.9-4.1L6 9.5l4.1-1.9z"/><path d="M18 15.8l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>解题</div>
+                    <div class="on"><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>错题</div>
+                    <div><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20.5c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>我的</div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ④ 错题</span>筛选是一级操作、放在顶部；导出固定在右上角；每条错题必须带「错因标签」，否则统计页无法归因。</div>
+          </div>
+
+          <!-- P5 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P5 计划周视图</b><span>375 × 812 · 拖拽改期</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <div class="sbar"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:4px 18px 0">
+                      <div>
+                        <div class="h1" style="font-size:19px">这周的计划</div>
+                        <div class="sub">10.19 – 10.25 · 第 3 周</div>
+                      </div>
+                      <div style="font-size:12px;color:#234B3D;border:1px solid #CFDCC9;background:#E7EDE6;border-radius:8px;padding:5px 10px">AI 重排</div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:16px 18px 0">
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#9AA296">一</div>
+                        <div style="height:52px;border-radius:7px;background:#F1EADA;border:1px solid #E8E0CD;margin-top:4px;padding:3px;display:flex;flex-direction:column;gap:2px">
+                          <span style="height:22px;background:#DCE5D8;border-radius:3px"></span><span style="height:12px;background:#E7DFCC;border-radius:3px"></span></div>
+                      </div>
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#9AA296">二</div>
+                        <div style="height:52px;border-radius:7px;background:#F1EADA;border:1px solid #E8E0CD;margin-top:4px;padding:3px;display:flex;flex-direction:column;gap:2px">
+                          <span style="height:12px;background:#E7DFCC;border-radius:3px"></span><span style="height:22px;background:#DCE5D8;border-radius:3px"></span></div>
+                      </div>
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#9AA296">三</div>
+                        <div style="height:52px;border-radius:7px;background:#F1EADA;border:1px solid #E8E0CD;margin-top:4px;padding:3px;display:flex;flex-direction:column;gap:2px">
+                          <span style="height:26px;background:#DCE5D8;border-radius:3px"></span><span style="height:10px;background:#E7DFCC;border-radius:3px"></span></div>
+                      </div>
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#234B3D;font-weight:700">四</div>
+                        <div style="height:52px;border-radius:7px;background:#F1EADA;border:2px solid #234B3D;margin-top:4px;padding:3px;display:flex;flex-direction:column;gap:2px">
+                          <span style="height:14px;background:#E7DFCC;border-radius:3px"></span><span style="height:18px;background:#DCE5D8;border-radius:3px"></span></div>
+                      </div>
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#9AA296">五</div>
+                        <div style="height:52px;border-radius:7px;background:#F1EADA;border:1px solid #E8E0CD;margin-top:4px;padding:3px;display:flex;flex-direction:column;gap:2px">
+                          <span style="height:22px;background:#DCE5D8;border-radius:3px"></span></div>
+                      </div>
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#9AA296">六</div>
+                        <div style="height:52px;border-radius:7px;background:#F1EADA;border:1px solid #E8E0CD;margin-top:4px;padding:3px;display:flex;flex-direction:column;gap:2px">
+                          <span style="height:16px;background:#E7DFCC;border-radius:3px"></span></div>
+                      </div>
+                      <div style="text-align:center">
+                        <div style="font-size:9.5px;color:#9AA296">日</div>
+                        <div style="height:52px;border-radius:7px;background:#FBF1E8;border:1px dashed #E5C4B8;margin-top:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#BE4A2E;line-height:1.2">缓冲</div>
+                      </div>
+                    </div>
+
+                    <div style="padding:14px 18px 0">
+                      <div class="cx" style="padding:12px 14px">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline">
+                          <div style="font-size:13px;font-weight:600">本周目标 · 极限专题</div>
+                          <div style="font-size:11px;color:#234B3D;font-weight:600">68%</div>
+                        </div>
+                        <div style="height:7px;border-radius:4px;background:#EFE8D6;margin-top:9px;overflow:hidden"><div style="width:68%;height:100%;background:#234B3D"></div></div>
+                        <div style="font-size:10.5px;color:#7C8A83;margin-top:8px">已完成 14 项 · 剩 6 项 · 周日为缓冲日</div>
+                      </div>
+                    </div>
+
+                    <div style="padding:12px 18px 0">
+                      <div class="lbl" style="margin-bottom:6px">周四 · 今天 2 项</div>
+                      <div style="display:flex;flex-direction:column;gap:8px">
+                        <div class="cx" style="padding:10px 13px;display:flex;gap:10px;align-items:center">
+                          <span style="width:15px;height:15px;border-radius:4px;border:1.5px solid #C9C0AA;flex-shrink:0"></span>
+                          <div style="flex:1"><div style="font-size:12.5px;font-weight:600">极限 · 第 3 组</div><div style="font-size:10px;color:#9AA296">20:00 · 25 分钟</div></div>
+                          <span style="font-size:10px;color:#BE4A2E">开始</span>
+                        </div>
+                        <div class="cx" style="padding:10px 13px;display:flex;gap:10px;align-items:center">
+                          <span style="width:15px;height:15px;border-radius:4px;border:1.5px solid #C9C0AA;flex-shrink:0"></span>
+                          <div style="flex:1"><div style="font-size:12.5px;font-weight:600">错题复习 6 道</div><div style="font-size:10px;color:#9AA296">21:00 · 20 分钟</div></div>
+                          <span style="font-size:10px;color:#BE4A2E">开始</span>
+                        </div>
+                        <div class="cx" style="padding:10px 13px;display:flex;gap:10px;align-items:center;opacity:.62">
+                          <span style="width:15px;height:15px;border-radius:4px;border:1.5px solid #C9C0AA;background:#DCE5D8;flex-shrink:0;position:relative"></span>
+                          <div style="flex:1"><div style="font-size:12.5px;font-weight:600;text-decoration:line-through;color:#7C8A83">英语 · 阅读 1 篇</div><div style="font-size:10px;color:#9AA296">已完成 · 18:40</div></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="padding:12px 18px 0">
+                      <div class="cx" style="padding:11px 13px">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline">
+                          <span class="lbl" style="margin:0">本周节奏</span><span style="font-size:10px;color:#9AA296">日均 1h16m</span>
+                        </div>
+                        <div style="display:flex;align-items:flex-end;gap:7px;height:50px;margin-top:8px">
+                          <div style="flex:1;text-align:center"><div style="height:24px;width:20px;margin:0 auto;background:#CFDCC9;border-radius:4px"></div><div style="font-size:8px;color:#9AA296;margin-top:5px">一</div></div>
+                          <div style="flex:1;text-align:center"><div style="height:16px;width:20px;margin:0 auto;background:#CFDCC9;border-radius:4px"></div><div style="font-size:8px;color:#9AA296;margin-top:5px">二</div></div>
+                          <div style="flex:1;text-align:center"><div style="height:34px;width:20px;margin:0 auto;background:#CFDCC9;border-radius:4px"></div><div style="font-size:8px;color:#9AA296;margin-top:5px">三</div></div>
+                          <div style="flex:1;text-align:center"><div style="height:42px;width:20px;margin:0 auto;background:#234B3D;border-radius:4px"></div><div style="font-size:8px;color:#234B3D;font-weight:700;margin-top:5px">四</div></div>
+                          <div style="flex:1;text-align:center"><div style="height:26px;width:20px;margin:0 auto;background:#CFDCC9;border-radius:4px"></div><div style="font-size:8px;color:#9AA296;margin-top:5px">五</div></div>
+                          <div style="flex:1;text-align:center"><div style="height:14px;width:20px;margin:0 auto;background:#CFDCC9;border-radius:4px"></div><div style="font-size:8px;color:#9AA296;margin-top:5px">六</div></div>
+                          <div style="flex:1;text-align:center"><div style="height:8px;width:20px;margin:0 auto;border:1px dashed #E5C4B8;border-radius:3px"></div><div style="font-size:8px;color:#BE4A2E;margin-top:5px">日</div></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:auto;padding:0 18px 14px">
+                      <div class="btn2 pine" style="height:46px;font-size:13px">AI 根据进度重排剩余任务</div>
+                      <div style="text-align:center;font-size:9.5px;color:#A9A292;margin-top:7px">长按任务卡片可拖拽改期</div>
+                    </div>
+                  </div>
+
+                  <div class="tabs">
+                    <div><svg viewBox="0 0 24 24"><path d="M4 5.5h16v15H4z"/><path d="M8 3v4M16 3v4M4 10.5h16"/><path d="m8.5 14.8 2.2 2.2 4.3-4.3"/></svg>今日</div>
+                    <div class="on"><svg viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h8"/><circle cx="4.3" cy="7" r="1.1"/><circle cx="4.3" cy="12" r="1.1"/><circle cx="4.3" cy="17" r="1.1"/></svg>计划</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.1 4.1 1.9-4.1 1.9L12 15.5l-1.9-4.1L6 9.5l4.1-1.9z"/><path d="M18 15.8l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>解题</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>错题</div>
+                    <div><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20.5c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>我的</div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ⑤ 计划</span>用拖拽代替「编辑弹窗」，改期 2 步内完成；保留一个空白缓冲日，计划才不容易整体崩掉。</div>
+          </div>
+
+          <!-- P6 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P6 空态与异常（三态合集）</b><span>375 × 812 · DoD 要求</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <div class="sbar"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div style="padding:4px 18px 0">
+                      <div class="h1" style="font-size:19px">边界状态</div>
+                      <div class="sub">空态 / 异常 / 首次进入 · 每屏都要有出口</div>
+                    </div>
+
+                    <div style="padding:16px 18px 0;display:flex;flex-direction:column;gap:10px">
+                      <div class="cx dash" style="text-align:center;padding:20px 16px 16px">
+                        <div style="width:44px;height:44px;border-radius:50%;background:#F1EADA;margin:0 auto 10px;display:flex;align-items:center;justify-content:center">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9A927E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 13h6"/></svg>
+                        </div>
+                        <div style="font-size:13.5px;font-weight:600">错题本还是空的</div>
+                        <div style="font-size:11.5px;color:#7C8A83;margin-top:5px;line-height:1.6">做完第一道题，错题会自动出现在这里<br>不用手动建，也不用选科目</div>
+                        <div style="display:inline-block;margin-top:12px;font-size:11.5px;color:#BE4A2E;border-bottom:1px solid #E5C4B8;padding-bottom:1px">去解第一道题 →</div>
+                      </div>
+
+                      <div class="cx" style="padding:18px 16px 14px">
+                        <div style="display:flex;justify-content:center;margin-bottom:9px">
+                          <span class="tagx" style="background:#FBEED8;color:#9A6E1B">异常 · AI 超时</span>
+                        </div>
+                        <div style="text-align:center;font-size:13.5px;font-weight:600;color:#A33B24">AI 暂时没响应</div>
+                        <div style="text-align:center;font-size:11.5px;color:#7C8A83;margin-top:5px;line-height:1.6">这道题已自动保存，不会丢<br>你可以稍后重试，或先看思路提示</div>
+                        <div style="display:flex;gap:8px;margin-top:12px">
+                          <div class="btn2" style="flex:1;height:40px;font-size:12px">稍后重试</div>
+                          <div class="btn2 pine" style="flex:1;height:40px;font-size:12px">看思路提示</div>
+                        </div>
+                      </div>
+
+                      <div class="cx" style="padding:18px 16px 14px;background:#F7F2E4">
+                        <div style="display:flex;justify-content:center;margin-bottom:9px">
+                          <span class="tagx b">首次进入 · 未注册</span>
+                        </div>
+                        <div style="text-align:center;font-size:13.5px;font-weight:600">第一次来？</div>
+                        <div style="text-align:center;font-size:11.5px;color:#7C8A83;margin-top:5px;line-height:1.6">不用注册、不用手机号<br>先定一个今天的小目标</div>
+                        <div class="btn2 pri" style="height:42px;font-size:12.5px;margin-top:12px">定个 25 分钟的目标</div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:auto;padding:0 18px 14px">
+                      <div style="font-size:10px;color:#A9A292;line-height:1.6;text-align:center">空态不写「暂无数据」，而写下一步可做什么；<br>AI 失败时先保住用户输入，再给降级出口。</div>
+                    </div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · 全局</span>空态不写「暂无数据」，而是告诉用户下一步做什么；AI 失败时不丢用户输入，先保存再提供降级路径。</div>
+          </div>
+        <!-- P7 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P7 学习报告</b><span>375 × 812 · 我的 → 报告</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <div class="sbar"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div class="pad" style="display:flex;align-items:flex-end;justify-content:space-between;padding-top:4px">
+                      <div>
+                        <div class="h1" style="font-size:19px">学习报告</div>
+                        <div class="sub">10.19 – 10.25 · 第 3 周</div>
+                      </div>
+                      <div style="font-size:10.5px;color:#7C8A83">上周 ›</div>
+                    </div>
+
+                    <div class="pad" style="margin-top:14px">
+                      <div class="cx dark" style="padding:14px 15px">
+                        <div class="lbl">本周有效专注</div>
+                        <div style="display:flex;align-items:baseline;gap:8px">
+                          <span style="font-family:'Noto Serif SC',serif;font-size:28px;font-weight:700;line-height:1">6<span style="font-size:16px;font-weight:500">h</span>40<span style="font-size:16px;font-weight:500">m</span></span>
+                          <span style="font-size:11px;background:rgba(255,255,255,.16);border-radius:20px;padding:2px 8px">↑ 18%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.14);font-size:10.5px;color:rgba(255,255,255,.62)">
+                          <span>连续 12 天</span><span>日均 57 分钟</span><span>目标 70%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:12px">
+                      <div style="display:flex;align-items:flex-end;gap:8px;height:86px;padding:0 2px">
+                        <div style="flex:1;text-align:center"><div style="height:34px;background:#CFDCC9;border-radius:4px"></div><div style="font-size:9px;color:#9AA296;margin-top:5px">一</div></div>
+                        <div style="flex:1;text-align:center"><div style="height:56px;background:#CFDCC9;border-radius:4px"></div><div style="font-size:9px;color:#9AA296;margin-top:5px">二</div></div>
+                        <div style="flex:1;text-align:center"><div style="height:44px;background:#CFDCC9;border-radius:4px"></div><div style="font-size:9px;color:#9AA296;margin-top:5px">三</div></div>
+                        <div style="flex:1;text-align:center"><div style="height:66px;background:#CFDCC9;border-radius:4px"></div><div style="font-size:9px;color:#9AA296;margin-top:5px">四</div></div>
+                        <div style="flex:1;text-align:center"><div style="height:28px;background:#E3E0D2;border-radius:4px"></div><div style="font-size:9px;color:#9AA296;margin-top:5px">五</div></div>
+                        <div style="flex:1;text-align:center"><div style="height:60px;background:#CFDCC9;border-radius:4px"></div><div style="font-size:9px;color:#9AA296;margin-top:5px">六</div></div>
+                        <div style="flex:1;text-align:center"><div style="height:48px;background:#234B3D;border-radius:4px"></div><div style="font-size:9px;color:#234B3D;font-weight:600;margin-top:5px">日</div></div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:14px">
+                      <div style="display:grid;grid-template-columns:repeat(3,1fr);background:#F4EDDC;border:1px solid #E3DAC4;border-radius:12px;padding:11px 0">
+                        <div style="text-align:center;border-right:1px solid #E3DAC4">
+                          <div style="font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:#234B3D;line-height:1.2">42</div>
+                          <div style="font-size:9.5px;color:#7C8A83;margin-top:2px">AI 讲题</div>
+                        </div>
+                        <div style="text-align:center;border-right:1px solid #E3DAC4">
+                          <div style="font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:#234B3D;line-height:1.2">78%</div>
+                          <div style="font-size:9.5px;color:#7C8A83;margin-top:2px">错题正确率</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:#234B3D;line-height:1.2">21/26</div>
+                          <div style="font-size:9.5px;color:#7C8A83;margin-top:2px">完成计划</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:14px">
+                      <div class="lbl" style="margin-bottom:9px">错因分布</div>
+                      <div style="display:flex;flex-direction:column;gap:8px">
+                        <div style="display:flex;align-items:center;gap:8px;font-size:10.5px;color:#5C6A62">
+                          <span style="width:52px">计算失误</span>
+                          <span style="flex:1;height:6px;background:#EFE9DA;border-radius:3px;overflow:hidden"><i style="display:block;width:38%;height:6px;background:#BE4A2E;border-radius:3px"></i></span>
+                          <span style="width:26px;text-align:right">38%</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;font-size:10.5px;color:#5C6A62">
+                          <span style="width:52px">概念不清</span>
+                          <span style="flex:1;height:6px;background:#EFE9DA;border-radius:3px;overflow:hidden"><i style="display:block;width:27%;height:6px;background:#234B3D;border-radius:3px"></i></span>
+                          <span style="width:26px;text-align:right">27%</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;font-size:10.5px;color:#5C6A62">
+                          <span style="width:52px">步骤遗漏</span>
+                          <span style="flex:1;height:6px;background:#EFE9DA;border-radius:3px;overflow:hidden"><i style="display:block;width:21%;height:6px;background:#7FA07F;border-radius:3px"></i></span>
+                          <span style="width:26px;text-align:right">21%</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;font-size:10.5px;color:#5C6A62">
+                          <span style="width:52px">审题失误</span>
+                          <span style="flex:1;height:6px;background:#EFE9DA;border-radius:3px;overflow:hidden"><i style="display:block;width:14%;height:6px;background:#C89B3C;border-radius:3px"></i></span>
+                          <span style="width:26px;text-align:right">14%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:auto;padding:0 18px 12px">
+                      <div class="btn2 pri mini" style="height:40px;border-radius:11px">导出本周报告 PDF</div>
+                    </div>
+                  </div>
+
+                  <div class="tabs">
+                    <div><svg viewBox="0 0 24 24"><path d="M4 5.5h16v15H4z"/><path d="M8 3v4M16 3v4M4 10.5h16"/><path d="m8.5 14.8 2.2 2.2 4.3-4.3"/></svg>今日</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h8"/><circle cx="4.3" cy="7" r="1.1"/><circle cx="4.3" cy="12" r="1.1"/><circle cx="4.3" cy="17" r="1.1"/></svg>计划</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.1 4.1 1.9-4.1 1.9L12 15.5l-1.9-4.1L6 9.5l4.1-1.9z"/><path d="M18 15.8l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>解题</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>错题</div>
+                    <div class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20.5c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>我的</div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ⑤ 我的 / 报告</span>报告只讲「三个数 + 一个归因」：时长、题量、正确率，加一张错因分布。多一个指标就多一分认知负担，也会稀释分享欲望。</div>
+          </div>
+
+          <!-- P8 -->
+          <div class="wf-card">
+            <div class="wf-head"><b>P8 我的 · 数据与会员</b><span>375 × 812 · 设置入口</span></div>
+            <div class="wf-canvas">
+              <div class="device"><span class="pill"></span>
+                <div class="scr">
+                  <div class="sbar"><span>9:41</span><span class="ic">
+                    <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="5" width="3" height="6" rx="1"/><rect x="9.2" y="2.6" width="3" height="8.4" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg>
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 3.6a9.4 9.4 0 0 1 13 0"/><path d="M3.6 6.2a5.8 5.8 0 0 1 7.8 0"/><circle cx="7.5" cy="9.3" r=".9" fill="currentColor" stroke="none"/></svg>
+                    <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".6" y=".6" width="20" height="9.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.1"/><rect x="2.2" y="2.2" width="14" height="6.6" rx="1.4" fill="currentColor"/><path d="M22.4 4v3.2" stroke="currentColor" stroke-opacity=".45" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </span></div>
+
+                  <div class="sbody">
+                    <div class="pad" style="padding-top:4px">
+                      <div class="h1" style="font-size:19px">我的</div>
+                      <div class="sub">数据归你，随时可带走</div>
+                    </div>
+
+                    <div class="pad" style="margin-top:14px">
+                      <div class="cx dash" style="padding:12px 14px;display:flex;align-items:center;gap:11px">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#234B3D" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20.5c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>
+                        <div style="flex:1">
+                          <div style="font-size:12px;font-weight:600">未登录 · 本地模式</div>
+                          <div style="font-size:10px;color:#8A9490;margin-top:1px">数据只存在这台设备，换机请先备份</div>
+                        </div>
+                        <span style="font-size:10.5px;color:#234B3D;font-weight:600;white-space:nowrap">备份 ›</span>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:12px">
+                      <div style="display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border:1px solid #EAE3D2;border-radius:12px;padding:13px 0">
+                        <div style="text-align:center;border-right:1px solid #EFE8D8">
+                          <div style="font-family:'Noto Serif SC',serif;font-size:19px;font-weight:700;color:#234B3D;line-height:1.2">24</div>
+                          <div style="font-size:9.5px;color:#8A9490;margin-top:2px">错题</div>
+                        </div>
+                        <div style="text-align:center;border-right:1px solid #EFE8D8">
+                          <div style="font-family:'Noto Serif SC',serif;font-size:19px;font-weight:700;color:#234B3D;line-height:1.2">12</div>
+                          <div style="font-size:9.5px;color:#8A9490;margin-top:2px">连续天</div>
+                        </div>
+                        <div style="text-align:center">
+                          <div style="font-family:'Noto Serif SC',serif;font-size:19px;font-weight:700;color:#234B3D;line-height:1.2">3</div>
+                          <div style="font-size:9.5px;color:#8A9490;margin-top:2px">计划</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:12px">
+                      <div class="cx dark" style="padding:12px 14px;display:flex;align-items:center;gap:10px">
+                        <div style="flex:1">
+                          <div style="font-size:12px;font-weight:600">自习会员</div>
+                          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:2px">无限讲题 · 错题分册导出 · 月报</div>
+                        </div>
+                        <span style="font-size:10.5px;background:#F6F1E2;color:#234B3D;border-radius:20px;padding:5px 11px;font-weight:600;white-space:nowrap">¥15/月</span>
+                      </div>
+                    </div>
+
+                    <div class="pad" style="margin-top:14px">
+                      <div style="background:#fff;border:1px solid #EAE3D2;border-radius:12px;overflow:hidden">
+                        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #F3EEE1">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5C6A62" stroke-width="1.8" stroke-linecap="round"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>
+                          <span style="flex:1;font-size:12px">学习报告</span><span style="font-size:10px;color:#A9A292">周报 ›</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #F3EEE1">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5C6A62" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19h14"/></svg>
+                          <span style="flex:1;font-size:12px">错题导出 PDF</span><span style="font-size:10px;color:#A9A292">按科目分册 ›</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #F3EEE1">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5C6A62" stroke-width="1.8" stroke-linecap="round"><path d="M4 7c0-1.6 3.6-3 8-3s8 1.4 8 3-3.6 3-8 3-8-1.4-8-3z"/><path d="M4 7v10c0 1.6 3.6 3 8 3s8-1.4 8-3V7"/></svg>
+                          <span style="flex:1;font-size:12px">数据备份与迁移</span><span style="font-size:10px;color:#A9A292">JSON ›</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #F3EEE1">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5C6A62" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 1.8"/></svg>
+                          <span style="flex:1;font-size:12px">专注与提醒</span><span style="font-size:10px;color:#A9A292">番茄 25 分 ›</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5C6A62" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+                          <span style="flex:1;font-size:12px">通用设置</span><span style="font-size:10px;color:#A9A292">›</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="text-align:center;font-size:9px;color:#B3B0A4;margin-top:14px">AI 自习室 V1.0 · 不收集题干原文</div>
+                  </div>
+
+                  <div class="tabs">
+                    <div><svg viewBox="0 0 24 24"><path d="M4 5.5h16v15H4z"/><path d="M8 3v4M16 3v4M4 10.5h16"/><path d="m8.5 14.8 2.2 2.2 4.3-4.3"/></svg>今日</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h8"/><circle cx="4.3" cy="7" r="1.1"/><circle cx="4.3" cy="12" r="1.1"/><circle cx="4.3" cy="17" r="1.1"/></svg>计划</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.1 4.1 1.9-4.1 1.9L12 15.5l-1.9-4.1L6 9.5l4.1-1.9z"/><path d="M18 15.8l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg>解题</div>
+                    <div><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h4"/></svg>错题</div>
+                    <div class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20.5c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>我的</div>
+                  </div>
+                  <div class="hbar"><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="wf-note"><span class="ia-pos">IA · ⑤ 我的</span>免登录是卖点也是风险：这里把「数据在本机」说清楚，并把备份、导出、会员三个出口放在同一屏，避免用户在换机时才发现数据带不走。</div>
+          </div>
+
+        </div>
+
+        <div class="section-h"><span class="num">01</span><h3>原型到开发的交接</h3><span class="rule"></span></div>
+        <div class="grid cols-3">
+          <div class="card"><h4>组件复用</h4><p>8 个界面共用 5 类组件：顶部状态栏、任务卡、主按钮、空态块、底部 Tab。开发时先做组件再拼页面，V1.5 加功能不必重画。</p></div>
+          <div class="card"><h4>交互标注</h4><p>每个主按钮最多 2 步到结果：开始专注（1 步）、讲题（1 步唤起 + 1 步输入）、导出（1 步）。超过 2 步的路径在评审时直接打回。</p></div>
+          <div class="card"><h4>尺寸与栅格</h4><p>原型按 375 × 812 绘制，左右安全边距 18px、卡片圆角 13px、最小点击区 44px；可按 1.04 倍等比放大到 390 × 844 适配新机型。</p></div>
+        </div>
+        <p class="note">说明：以上为课程作业产出的低保真原型（375 × 812 手机线框，可导出为 SVG / 2 倍图导入 Axure 等工具继续加工），用于验证信息架构与操作路径；高保真界面与交互细节属于 V1.0 开发阶段交付物。</p>
+    </section>
+
+    <section class="section" id="sec-launch">
+      <p class="kicker">STEP 16 · 发布计划</p>
+      <h2>十七、冷启动与 30 天发布计划</h2>
+      <p class="ch-lead">做完不等于上线。这一章给出一个人可执行的发布节奏：先让 50 个人用完整个闭环，再让 500 个人进来；渠道只投算得清账的，分享只晒成果不晒隐私。</p>
+      <div class="section-h"><span class="num">01</span><h3>冷启动策略：先打穿一所学校，不铺全国</h3><span class="rule"></span></div>
+      <p>一个人做的产品没有预算做投放，唯一可行的路径是<b>单点突破</b>：一所学校、一个备考节点、一个可被口口相传的场景。选「本校 + 考研冲刺季」的原因有三条——人群密度高（同一栋楼、同一个群）、时间点统一（同一场考试）、痛点同频（都需要长时间专注 + 有人讲题）。</p>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card kpi"><b>1 所</b><span>首月只做本校，不跨校</span></div>
+        <div class="card kpi"><b>500</b><span>首月注册目标</span></div>
+        <div class="card kpi"><b>150</b><span>首月周活目标（30%）</span></div>
+      </div>
+
+      <div class="section-h"><span class="num">02</span><h3>30 天发布计划</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:14%"><col style="width:24%"><col style="width:36%"><col style="width:26%"></colgroup>
+          <thead><tr><th>阶段</th><th>时间</th><th>关键动作</th><th>交付物 / 验收</th></tr></thead>
+          <tbody>
+            <tr><td>预热</td><td>D-7 ~ D-1</td><td>在 3 个备考群发「自习室开放 50 个内测名额」，收集微信号；准备 9:16 落地页</td><td>50 人内测名单，落地页可访问</td></tr>
+            <tr><td>内测</td><td>D1 ~ D7</td><td>50 人封闭试用，每天 1 次 10 分钟回访，只修「走不通」的问题，不加功能</td><td>任务完成率 ≥ 80%，收集 30 条原话</td></tr>
+            <tr><td>公测</td><td>D8 ~ D14</td><td>开放注册，上线邀请码（双方各得 7 天会员）；图书馆桌面贴纸 + 群公告</td><td>注册 200，周活 80</td></tr>
+            <tr><td>扩散</td><td>D15 ~ D22</td><td>发布「考研 30 天冲刺计划模板」+ 周报分享图；邀请 2 位学习博主体验</td><td>分享 25 次，注册 400</td></tr>
+            <tr><td>收敛</td><td>D23 ~ D30</td><td>按埋点砍掉无人使用的功能，把 3 个高频动作前置到首屏</td><td>注册 500，周活 150，留存曲线可读</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-h"><span class="num">03</span><h3>渠道组合：只投能算清账的</h3><span class="rule"></span></div>
+      <div class="grid g3">
+        <div class="card" style="padding:16px 18px">
+          <h4 style="margin-top:0">校园社群（主）</h4>
+          <p style="font-size:13px;margin:0 0 6px">12 个备考 / 专业群，用「内测名额 + 学习报告」做钩子，不做硬广。</p>
+          <p style="font-size:12px;margin:0;color:#64748b">预期：注册 250，CAC ≈ ¥1.2</p>
+        </div>
+        <div class="card" style="padding:16px 18px">
+          <h4 style="margin-top:0">内容平台（辅）</h4>
+          <p style="font-size:13px;margin:0 0 6px">小红书 / B 站发「自习室学习法」「番茄钟怎么设才不困」，视频结尾放口令。</p>
+          <p style="font-size:12px;margin:0;color:#64748b">预期：注册 150，CAC ≈ ¥2.4</p>
+        </div>
+        <div class="card" style="padding:16px 18px">
+          <h4 style="margin-top:0">线下触点（补）</h4>
+          <p style="font-size:13px;margin:0 0 6px">图书馆桌面贴纸 + 自习室门后海报，二维码直达「开始专注」，不经过首页。</p>
+          <p style="font-size:12px;margin:0;color:#64748b">预期：注册 100，CAC ≈ ¥0.6</p>
+        </div>
+      </div>
+
+      <div class="section-h"><span class="num">04</span><h3>分享机制：让成果可晒，让隐私不可见</h3><span class="rule"></span></div>
+      <div class="grid g2">
+        <div class="card" style="padding:18px 20px">
+          <h4 style="margin-top:0">周报分享图（9:16）</h4>
+          <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:2;color:#475569">
+            <li>只呈现「专注时长 / 连续天数 / 完成题数 / 一句自评」</li>
+            <li><b>不出现题目原文、不出现错题内容</b>——避免把学习隐私晒出去</li>
+            <li>底部带邀请码，被邀请人得 7 天会员，邀请人得 7 天</li>
+          </ul>
+        </div>
+        <div class="card" style="padding:18px 20px">
+          <h4 style="margin-top:0">连续打卡与徽章</h4>
+          <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:2;color:#475569">
+            <li>7 / 21 / 50 天三个节点出徽章，节点当天给一次「加时卡」</li>
+            <li>徽章只在「我的」页可见，不做全站排行榜——排行榜会让后进者退出</li>
+            <li>分享是可选项：默认不弹窗，避免打断专注</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-h"><span class="num">05</span><h3>上线检查清单（8 项，缺一不发）</h3><span class="rule"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <colgroup><col style="width:8%"><col style="width:34%"><col style="width:58%"></colgroup>
+          <thead><tr><th>#</th><th>检查项</th><th>通过标准</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>首屏性能</td><td>4G 下首屏可交互 ≤ 1.5 秒，无布局跳动</td></tr>
+            <tr><td>2</td><td>埋点校验</td><td>10 条事件全部上报成功，属性无缺失</td></tr>
+            <tr><td>3</td><td>空态与失败态</td><td>无错题、无计划、AI 超时、断网四种状态都有界面与出口</td></tr>
+            <tr><td>4</td><td>数据归属</td><td>本地数据可导出 JSON；隐私说明写明「不上传题干原文」</td></tr>
+            <tr><td>5</td><td>导出链路</td><td>PDF 导出成功率 100%（10 次连续测试）</td></tr>
+            <tr><td>6</td><td>客服入口</td><td>「我的」页有反馈入口，48 小时内有人回</td></tr>
+            <tr><td>7</td><td>回滚方案</td><td>保留上一版本静态包，5 分钟内可切回</td></tr>
+            <tr><td>8</td><td>数据看板</td><td>WEM、漏斗 6 步、留存曲线三张图每日可看</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">发布节奏原则：<b>先让 50 个人用完整个闭环，再让 500 个人进来</b>。内测期只修「走不通」，不接新需求，否则上线日期会被无限推后。</p>
+
+    </section>
+
+    <section class="section" id="sec-conclusion">
+      <p class="kicker">收口</p>
+      <h2>十八、结论与下一步</h2>
+      <p class="ch-lead">把整份作品集的推理链收在一页里：从一句定位出发，经过需求、竞品、研究、方案、架构、原型、商业化与指标，最后落到「先做哪一步」。</p>
+      <div class="section-h"><span class="num">01</span><h3>一句话结论与三步行动</h3><span class="rule"></span></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <h4>一句话结论</h4>
+            <p style="margin-top:8px;font-size:14.5px">AI 自习室的差异化定位 = <b>“专注工具 × AI 伴学闭环”</b>：用番茄式激励解决“坐得住”，用 AI 讲题 + 错题沉淀解决“学得会”，用免登录解决“用得进”。</p>
+          </div>
+          <div class="card">
+            <h4>三步行动</h4>
+            <p style="margin-top:8px">① MVP 验证期：最小成本拉通“专注 → AI 讲题 → 错题导出”闭环，验证留存假设；② 跑马圈地：以校园社区 + 备考场景小规模试点，快速占领细分市场；③ 数据资产：沉淀错题与学习报告，建立可迁移的长期壁垒。</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h4>作品集叙事串联</h4>
+          <div class="flow" style="margin-top:10px">
+            <span class="step">KANO 需求分级</span><span class="arrow">→</span>
+            <span class="step">竞品 5 层 + 用户研究</span><span class="arrow">→</span>
+            <span class="step">HMW 优化</span><span class="arrow">→</span>
+            <span class="step">功能结构 + 版本路线</span><span class="arrow">→</span>
+            <span class="step">信息架构</span><span class="arrow">→</span>
+            <span class="step">原型与 PRD</span>
+          </div>
+          <p style="margin-top:10px;font-size:13px;color:var(--ink-soft)">需求被证真（卡诺）→ 看清对手与用户（竞品 5 层 + 定性定量）→ 用 HMW 找到更优解 → 拆成 35 个功能点并排出五个版本 → 定信息架构 → 画出可交付的原型。这条链路从头到尾只回答一个问题：这个产品凭什么做、怎么做、先做哪一步。</p>
+        </div>
+        <p class="note">数据口径：本期问卷与访谈为课程模拟数据；竞品 5 层拆解与 7 阶段定位基于公开产品状态的作业分析假设。</p>
+    </section>
+</main>
+
+<div class="pf-foot">
+  <b>AI 自习室 · 产品设计作品集</b> · 王轩 · 2026<br>
+  数据口径：问卷、访谈与 Agent 打分为课程模拟数据；竞品拆解与发展阶段判断基于公开产品状态的作业假设；商业化测算为假设模型，口径已注明。
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 数据：需求 ================= */
+const NEEDS=[
+ {id:"R1",title:"AI习题分步讲解",desc:"拍照或输入题目后，AI 只输出分步思路与引导性提问，不直接甩最终答案，确认掌握后再给答案。",voice:"做题的时候，我希望它带我一步步想，直接给答案等于白做。",who:"考研 · 张同学"},
+ {id:"R2",title:"番茄专注 + 专注统计",desc:"提供专注时钟，记录每次专注时长，输出每日/每周专注数据与连续打卡。",voice:"我最大的问题是坐不住，想知道自己到底学了多久。",who:"大二 · 李同学"},
+ {id:"R3",title:"免登录打开即用",desc:"无需注册登录，基础功能直接可用，笔记和记录保存在本地，数据归用户。",voice:"让我注册的学习软件我基本都关了，太麻烦。",who:"社恐 · 周同学"},
+ {id:"R4",title:"AI学习计划 + 拖拽调整",desc:"AI 根据目标生成周计划，任务块支持拖拽到任意日期与时段，手动改完自动保存。",voice:"计划我也会列，但坚持不了；如果能随手拖就好了。",who:"大一 · 陈同学"},
+ {id:"R5",title:"错题自动归集 + PDF导出",desc:"做错的题自动进入错题本并按科目/错因分类，支持一键导出 PDF 打印。",voice:"考证要反复刷错题，能导出来打印背最方便。",who:"考证 · 刘同学"}
+];
+
+/* ================= 数据：10个Agent用户 ================= */
+const USERS=[
+ {id:"U1",name:"张同学",role:"大三·考研",tag:"每天自习8小时，极度看重效率",scores:{R1:[1,5],R2:[1,5],R3:[2,5],R4:[1,4],R5:[1,5]}},
+ {id:"U2",name:"李同学",role:"大二·专业课多",tag:"兴趣广泛但容易分心，坐不住",scores:{R1:[1,5],R2:[1,5],R3:[1,5],R4:[1,3],R5:[1,4]}},
+ {id:"U3",name:"王同学",role:"大四·毕设+考公",tag:"时间碎片化，难以整段专注",scores:{R1:[2,5],R2:[2,4],R3:[2,5],R4:[1,4],R5:[2,5]}},
+ {id:"U4",name:"陈同学",role:"大一·新生",tag:"刚接触自主学习，对AI很好奇",scores:{R1:[1,5],R2:[1,3],R3:[1,5],R4:[1,2],R5:[1,3]}},
+ {id:"U5",name:"刘同学",role:"大三·考证",tag:"教资+六级，需要打印资料背诵",scores:{R1:[1,3],R2:[2,5],R3:[2,5],R4:[2,4],R5:[1,5]}},
+ {id:"U6",name:"赵同学",role:"大三·医学生",tag:"背诵量极大，长时间反复记忆",scores:{R1:[1,4],R2:[1,4],R3:[2,5],R4:[1,3],R5:[1,5]}},
+ {id:"U7",name:"孙同学",role:"二战·考研",tag:"在家自习，需要学习仪式感",scores:{R1:[1,5],R2:[1,5],R3:[2,5],R4:[1,3],R5:[1,5]}},
+ {id:"U8",name:"周同学",role:"大二·社恐",tag:"极度讨厌注册，喜欢匿名使用",scores:{R1:[2,5],R2:[1,4],R3:[1,5],R4:[2,3],R5:[2,4]}},
+ {id:"U9",name:"吴同学",role:"大四·秋招实习",tag:"通勤中学习，时间零散",scores:{R1:[1,3],R2:[2,3],R3:[2,5],R4:[1,4],R5:[1,4]}},
+ {id:"U10",name:"郑同学",role:"研一·读论文",tag:"需要长期规划，重节奏管理",scores:{R1:[1,5],R2:[1,4],R3:[1,5],R4:[1,5],R5:[2,5]}}
+];
+
+/* ================= KANO 判定矩阵 ================= */
+// 行=功能分(1-5)，列=故障分(1-5)，值=类别
+const KANO_MATRIX={
+ 1:{1:"Q",2:"A",3:"A",4:"A",5:"O"},
+ 2:{1:"R",2:"I",3:"I",4:"I",5:"M"},
+ 3:{1:"R",2:"I",3:"I",4:"I",5:"M"},
+ 4:{1:"R",2:"I",3:"I",4:"I",5:"M"},
+ 5:{1:"R",2:"R",3:"R",4:"R",5:"Q"}
+};
+const TYPE_NAME={M:"必备型 Must-be",O:"期望型 One-dimensional",A:"魅力型 Attractive",I:"无差异 Indifferent",Q:"可疑 Q",R:"反向 Reverse"};
+
+/* ================= 计算统计 ================= */
+function classify(f,d){return KANO_MATRIX[f][d];}
+function computeResults(){
+  const res={};
+  NEEDS.forEach(n=>{
+    const cnt={M:0,O:0,A:0,I:0,Q:0,R:0};
+    const perUser=[];
+    USERS.forEach(u=>{
+      const [f,d]=u.scores[n.id];
+      const t=classify(f,d);
+      cnt[t]++; perUser.push({u:u.id,f,d,t});
+    });
+    const total=cnt.M+cnt.O+cnt.A+cnt.I;
+    const better=(cnt.A+cnt.O)/total;
+    const worse=-(cnt.O+cnt.M)/total;
+    // 多数票定属性；同票时按 M>O>A>I
+    let type=null,max=-1;
+    ["M","O","A","I"].forEach(t=>{if(cnt[t]>max){max=cnt[t];type=t;}});
+    res[n.id]={cnt,better,worse,type,perUser,total};
+  });
+  return res;
+}
+const RESULTS=computeResults();
+
+/* ================= ECharts 异步加载器（双CDN） ================= */
+var ECHARTS_CDNS=[
+ "https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js",
+ "https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js",
+ "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
+];
+var __echartsLoading=false,__echartsWaiters=[];
+function loadEcharts(cb){
+  if(typeof echarts!=="undefined"){cb();return;}
+  __echartsWaiters.push(cb);
+  if(__echartsLoading)return;
+  __echartsLoading=true;
+  var i=0;
+  function done(){
+    __echartsLoading=false;
+    var ws=__echartsWaiters;__echartsWaiters=[];
+    ws.forEach(function(f){f();});
+  }
+  function next(){
+    var s=document.createElement("script");
+    s.src=ECHARTS_CDNS[i];
+    s.async=true;
+    s.onload=done;
+    s.onerror=function(){i++;if(i<ECHARTS_CDNS.length)next();else done();};
+    document.head.appendChild(s);
+  }
+  next();
+}
+
+/* ================= 渲染：需求卡 ================= */
+function renderNeeds(){
+  document.getElementById("needsGrid").innerHTML=NEEDS.map(n=>`
+    <div class="card need-card">
+      <div class="rid">${n.id}</div>
+      <h4>${n.title}</h4>
+      <p>${n.desc}</p>
+      <div class="voice"><b>用户原声 · </b>「${n.voice}」<br><span style="display:block;text-align:right;margin-top:5px">—— ${n.who}</span></div>
+    </div>`).join("");
+}
+
+/* ================= 单页滚动：锚点跳转 + 滚动高亮 ================= */
+function scrollToSec(sec){
+  var el=document.getElementById("sec-"+sec);
+  if(!el)return;
+  var y=el.getBoundingClientRect().top+window.pageYOffset-96;
+  window.scrollTo({top:y,behavior:"smooth"});
+}
+document.querySelectorAll(".nav a").forEach(function(a){
+  a.addEventListener("click",function(e){
+    e.preventDefault();
+    scrollToSec(a.dataset.sec);
+    document.querySelectorAll(".nav a").forEach(function(x){x.classList.remove("active");});
+    a.classList.add("active");
+  });
+});
+var __scrollTick=false;
+window.addEventListener("scroll",function(){
+  if(__scrollTick)return;
+  __scrollTick=true;
+  requestAnimationFrame(function(){
+    __scrollTick=false;
+    var sections=document.querySelectorAll(".section");
+    var cur=sections[0].id.replace("sec-","");
+    var threshold=window.innerHeight*0.35;
+    for(var i=0;i<sections.length;i++){
+      var top=sections[i].getBoundingClientRect().top;
+      if(top<=threshold){cur=sections[i].id.replace("sec-","");}
+      else break;
+    }
+    if(window.innerHeight+window.pageYOffset>=document.documentElement.scrollHeight-2){
+      cur=sections[sections.length-1].id.replace("sec-","");
+    }
+    document.querySelectorAll(".nav a").forEach(function(x){x.classList.toggle("active",x.dataset.sec===cur);});
+  });
+},{passive:true});
+
+/* ================= Toast ================= */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* ================= 渲染：用户画像与评分表 ================= */
+function renderSurvey(){
+  document.getElementById("personaGrid").innerHTML=USERS.map(u=>{
+    const summary=NEEDS.map(n=>{
+      const t=classify(u.scores[n.id][0],u.scores[n.id][1]);
+      return `${n.id}:${t}`;
+    }).join(" ");
+    const clickText=`${u.id} ${u.name}｜${summary}`;
+    return `<div class="card persona" onclick="toast('${clickText}')">
+      <div class="head"><div class="avatar">${u.name.charAt(0)}</div><div><b>${u.id} · ${u.name}</b><br><span>${u.role}</span></div></div>
+      <div class="tagline">${u.tag}</div>
+      <div class="scores">${NEEDS.map(n=>{const t=classify(u.scores[n.id][0],u.scores[n.id][1]);return `${n.id}:<b>${t}</b>`;}).join("　")}</div>
+    </div>`;
+  }).join("");
+  const tb=document.querySelector("#surveyTable tbody");
+  tb.innerHTML=USERS.map(u=>{
+    const cells=NEEDS.map(n=>{
+      const [f,d]=u.scores[n.id],t=classify(f,d);
+      return `<td><span class="score">${f} / ${d}</span> <span class="tag tag-${t}">${t}</span></td>`;
+    }).join("");
+    return `<tr><td><b>${u.id}</b> ${u.name}<br><span class="muted" style="font-size:11px">${u.role}</span></td>${cells}</tr>`;
+  }).join("");
+}
+
+/* ================= KANO 评级 ================= */
+const PRIORITY={R3:"P0",R1:"P1",R5:"P1",R2:"P2",R4:"P2"};
+const EXPLAIN={
+ R1:"10 个用户中 8 个对「有了」给出很喜欢。分步讲解是判断 AI 好不好用的核心标尺：步骤越清晰、越会引导思考，满意度越高；直接甩答案会被强烈反感。",
+ R2:"番茄钟本身不稀缺（Worse 仅 −0.4），但叠加专注统计与打卡后成为魅力点。它是差异化入口，也是下一步 HMW 要重点优化的需求。",
+ R3:"10 个用户对「没有」全部给出负面感受（Worse=−1.0）。免登录是隐形生死线：做好了没人夸，做差了用户直接关掉页面离开。",
+ R4:"7 个用户把它视为惊喜（Worse 仅 −0.1）。用户本没指望工具替自己做计划；一旦 AI 生成且能随手拖拽，就会明显超出预期。",
+ R5:"错题归集与 PDF 打印是备考人群的刚需工作流：导出越清晰、越方便打印，越满意；不能导出会明显失落。"
+};
+function renderKano(){
+  const tb=document.querySelector("#kanoSummary tbody");
+  const order=["R3","R1","R5","R2","R4"];
+  tb.innerHTML=order.map(id=>{
+    const n=NEEDS.find(x=>x.id===id),r=RESULTS[id];
+    return `<tr>
+      <td><b>${id}</b></td><td>${n.title}</td>
+      <td><span class="tag tag-${r.type}">${r.type}</span></td>
+      <td>${r.cnt.M} / ${r.cnt.O} / ${r.cnt.A} / ${r.cnt.I}</td>
+      <td class="s-good">${r.better.toFixed(2)}</td>
+      <td class="s-bad">${r.worse.toFixed(2)}</td>
+      <td><span class="prio ${PRIORITY[id]}">${PRIORITY[id]}</span></td>
+    </tr>`;
+  }).join("");
+  document.getElementById("resultCards").innerHTML=order.map(id=>{
+    const n=NEEDS.find(x=>x.id===id),r=RESULTS[id];
+    return `<div class="card result-card">
+      <div class="top">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-family:'Noto Serif SC';font-weight:700;color:var(--cinnabar)">${id}</span><h4>${n.title}</h4></div>
+        <div style="display:flex;gap:7px"><span class="tag tag-${r.type}">${TYPE_NAME[r.type]}</span><span class="prio ${PRIORITY[id]}">${PRIORITY[id]}</span></div>
+      </div>
+      <div class="coef">
+        <div class="c plus"><b>${r.better.toFixed(2)}</b><span>Better 满意提升</span></div>
+        <div class="c minus"><b>${r.worse.toFixed(2)}</b><span>Worse 缺失惩罚</span></div>
+      </div>
+      <div class="explain">${EXPLAIN[id]}</div>
+    </div>`;
+  }).join("");
+}
+
+/* ================= 四象限图 ================= */
+let chartQuadrantInst=null;
+function quadrantFallback(el){
+  const rows=["R1","R2","R3","R4","R5"].map(id=>{
+    const r=RESULTS[id],n=NEEDS.find(x=>x.id===id);
+    return `<tr><td>${id}</td><td>${n.title}</td><td><span class="tag tag-${r.type}">${r.type}</span></td><td>${r.better.toFixed(2)}</td><td>${r.worse.toFixed(2)}</td></tr>`;
+  }).join("");
+  el.innerHTML=`<div style="padding:24px;overflow:auto">
+    <p class="muted" style="margin-bottom:14px">图表库未能加载（网络问题），以下为静态数据：</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#eff6ff;color:#1e3a8a">
+    <th style="padding:9px">编号</th><th>需求</th><th>属性</th><th>Better</th><th>Worse</th></tr></thead>
+    <tbody style="text-align:center">${rows}</tbody></table>
+    <p class="muted" style="margin-top:14px">象限分割线：Better=0.68，|Worse|=0.56；R3在右下必备区，R1/R5在右上期望区，R2/R4在左上魅力区。</p></div>`;
+}
+function renderQuadrant(){
+  const el=document.getElementById("chartQuadrant");
+  el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:13px">图表加载中…</div>';
+  loadEcharts(function(){
+  if(typeof echarts==="undefined"){quadrantFallback(el);return;}
+  if(chartQuadrantInst){chartQuadrantInst.dispose();chartQuadrantInst=null;}
+  chartQuadrantInst=echarts.init(el);
+  const byType={M:[],O:[],A:[]};
+  const typeLabel={M:"必备型 M",O:"期望型 O",A:"魅力型 A"};
+  ["R1","R2","R3","R4","R5"].forEach(id=>{
+    const r=RESULTS[id];
+    byType[r.type].push({value:[Math.abs(r.worse),r.better],id,name:NEEDS.find(n=>n.id===id).title,r});
+  });
+  const colors={M:"#c2410c",O:"#b45309",A:"#1d4ed8"};
+  const series=Object.keys(byType).map(t=>({
+    name:typeLabel[t],type:"scatter",data:byType[t],
+    symbolSize:27,
+    itemStyle:{color:colors[t],borderColor:"#fff",borderWidth:2,opacity:.95},
+    label:{show:true,formatter:p=>p.data.id,position:"inside",color:"#fff",fontWeight:700,fontSize:11,fontFamily:"Noto Serif SC"},
+    emphasis:{scale:1.2,itemStyle:{shadowBlur:10,shadowColor:"rgba(0,0,0,.3)"}},
+    markLine:t==="M"?{
+      silent:true,symbol:"none",
+      lineStyle:{type:"dashed",color:"#999",width:1.5},
+      data:[{xAxis:0.56},{yAxis:0.68}]
+    }:undefined
+  }));
+  // 象限名称（静默标签点）
+  series.push({
+    type:"scatter",silent:true,symbolSize:1,data:[
+      {value:[0.28,0.86],n:"魅力型 A · 做了惊喜"},
+      {value:[0.78,0.86],n:"期望型 O · 越做越好"},
+      {value:[0.78,0.30],n:"必备型 M · 不做致命"},
+      {value:[0.28,0.30],n:"无差异型 I · 可有可无"}
+    ],
+    label:{show:true,formatter:p=>p.data.n,fontSize:13,color:"#94a3b8",fontFamily:"Noto Serif SC",fontWeight:600}
+  });
+  chartQuadrantInst.setOption({
+    grid:{left:70,right:50,top:40,bottom:60},
+    tooltip:{
+      padding:12,borderWidth:0,backgroundColor:"#0f172a",textStyle:{color:"#fff",fontSize:12.5},
+      formatter:p=>{
+        if(p.silent||!p.data.r)return "";
+        const r=p.data.r,c=r.cnt;
+        return `<b style="font-family:'Noto Serif SC';font-size:13.5px">${p.data.id} · ${p.data.name}</b><br>
+        属性：<b style="color:#93c5fd">${TYPE_NAME[r.type]}</b><br>
+        Better：<b>${r.better.toFixed(2)}</b>　|Worse|：<b>${Math.abs(r.worse).toFixed(2)}</b><br>
+        票数 M/O/A/I：${c.M}/${c.O}/${c.A}/${c.I}`;
+      }
+    },
+    xAxis:{
+      name:"|Worse| 缺失惩罚（越右越严重）",nameLocation:"middle",nameGap:34,nameTextStyle:{fontSize:12.5,color:"#475569"},
+      min:0,max:1,interval:.2,
+      axisLine:{lineStyle:{color:"#aaa"}},splitLine:{lineStyle:{color:"#f1f5f9"}},
+      axisLabel:{fontSize:11.5}
+    },
+    yAxis:{
+      name:"Better 满意提升",nameLocation:"middle",nameGap:44,nameTextStyle:{fontSize:12.5,color:"#475569"},
+      min:0,max:1,interval:.2,
+      axisLine:{lineStyle:{color:"#aaa"}},splitLine:{lineStyle:{color:"#f1f5f9"}},
+      axisLabel:{fontSize:11.5}
+    },
+    series
+  },true);
+  });
+}
+
+/* ================= 核心业务链脑图 ================= */
+let chartChainInst=null;
+function chainFallback(el){
+  const data=CHAIN_DATA;
+  let html=`<div style="padding:26px"><p class="muted" style="margin-bottom:12px">图表库未能加载（网络问题），以下为静态业务链：</p>
+    <h3 style="font-size:17px;margin-bottom:12px">${data.name}</h3>`;
+  data.children.forEach(b=>{
+    html+=`<div style="margin:12px 0 6px"><b style="color:#1d4ed8">${b.name}</b></div>
+    <ul style="margin-left:22px;font-size:13px;color:#475569">${b.children.map(c=>`<li>${c.name}</li>`).join("")}</ul>`;
+  });
+  el.innerHTML=html+"</div>";
+}
+const CHAIN_DATA={
+ name:"AI自习室",
+ children:[
+  {name:"① 进入 · 免登录",children:[{name:"打开网页"},{name:"本地加载数据"},{name:"今日学习看板"}]},
+  {name:"② 专注",children:[{name:"选择专注模式"},{name:"番茄钟计时"},{name:"分心温柔提醒"},{name:"专注记录入统计"}]},
+  {name:"③ AI解题",children:[{name:"输入/拍照题目"},{name:"分步引导思考"},{name:"追问互动"},{name:"确认掌握"}]},
+  {name:"④ 错题闭环",children:[{name:"自动归集"},{name:"科目/错因分类"},{name:"复习推送"},{name:"PDF导出打印"}]},
+  {name:"⑤ 计划管理",children:[{name:"AI生成周计划"},{name:"拖拽调整"},{name:"每日打卡"},{name:"完成反馈"}]},
+  {name:"⑥ 沉淀留存",children:[{name:"学习数据报告"},{name:"连续打卡"},{name:"唤醒通知"}]}
+ ]
+};
+function styleChain(node,depth){
+  if(depth===0){node.itemStyle={color:"#1e40af",borderColor:"#1e40af"};node.label={color:"#fff",fontSize:15,fontWeight:700,fontFamily:"Noto Serif SC"};}
+  else if(depth===1){node.itemStyle={color:"#3b82f6",borderColor:"#3b82f6"};node.label={color:"#fff",fontSize:13,fontWeight:600};}
+  else {node.itemStyle={color:"#fff",borderColor:"#cbd5e1",borderWidth:1};node.label={color:"#0f172a",fontSize:12};}
+  if(node.children)node.children.forEach(c=>styleChain(c,depth+1));
+}
+function renderChain(){
+  const el=document.getElementById("chartChain");
+  el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:13px">图表加载中…</div>';
+  loadEcharts(function(){
+  if(typeof echarts==="undefined"){chainFallback(el);return;}
+  if(chartChainInst){chartChainInst.dispose();chartChainInst=null;}
+  chartChainInst=echarts.init(el);
+  const data=JSON.parse(JSON.stringify(CHAIN_DATA));
+  styleChain(data,0);
+  chartChainInst.setOption({
+    tooltip:{trigger:"item",triggerOn:"mousemove",backgroundColor:"#0f172a",borderWidth:0,textStyle:{color:"#fff",fontSize:12.5}},
+    series:[{
+      type:"tree",data:[data],orient:"LR",expandAndCollapse:false,roam:true,
+      top:"4%",bottom:"4%",left:"4%",right:"16%",
+      symbol:"roundRect",symbolSize:[118,36],
+      label:{position:"inside",verticalAlign:"middle",align:"center"},
+      leaves:{label:{position:"inside"},symbolSize:[118,32]},
+      lineStyle:{color:"#cbd5e1",width:1.4,curveness:.45},
+      emphasis:{focus:"descendant"},
+      animationDuration:600
+    }]
+  },true);
+  });
+}
+
+/* ================= HMW 优化 ================= */
+const HMW_QUESTIONS=[
+ "HMW 让用户在开始专注的瞬间就进入状态，而不是先刷十分钟手机？",
+ "HMW 让分心的用户被温柔地拉回，而不是被倒计时冷冰冰地打断？",
+ "HMW 把看不见的专注时间，变成看得见的成就感？",
+ "HMW 让独自学习的人感到「有人在一起学」，同时不打扰社恐？",
+ "HMW 让专注门槛低到随时可以开始，哪怕只有 15 分钟？",
+ "HMW 让 AI 适配每个人的专注节奏，而不是强迫所有人都用 25 分钟？",
+ "HMW 让环境声音与氛围自动贴合专注状态，而不需要手动设置？",
+ "HMW 让一次专注结束后，用户自然而然愿意再来一个？"
+];
+const SOLUTIONS=[
+ {icon:"S1",title:"AI 自适应番茄",from:"H5 · H6",
+  feat:["近7天完成率动态推荐 25/45/60 分钟","15分钟极速开始","连续未完成自动降档","节奏越用越懂你"],
+  impact:"目标：从「固定25分钟」变成「我的节奏」，完成率预计提升"},
+ {icon:"S2",title:"线上自习室",from:"H4",
+  feat:["虚拟同桌实时学习状态","一起进房 / 一起休息","社恐可只开氛围","无需任何对外信息"],
+  impact:"目标：用陪伴感降低中途放弃率，独自在家也有仪式感"},
+ {icon:"S3",title:"专注可视化",from:"H3 · H8",
+  feat:["完成专注生成「专注树」","每日专注时长入报告","连续打卡徽章","周报可回看"],
+  impact:"目标：成就感驱动次日回来，让用户舍不得中断连续记录"},
+ {icon:"S4",title:"一键沉浸",from:"H1 · H2 · H7",
+  feat:["自动匹配白噪音","分心切换标签时温柔提醒","专注页全屏免打扰","从打开到进入<30秒"],
+  impact:"目标：缩短「坐下→进入状态」的时间，降低启动阻力"}
+];
+function renderHmw(){
+  document.getElementById("hmwBoard").innerHTML=HMW_QUESTIONS.map((q,i)=>
+    `<div class="hmw-q"><span class="n">H${i+1}</span><span>${q}</span></div>`).join("");
+  document.getElementById("solutionCards").innerHTML=SOLUTIONS.map(s=>`
+    <div class="card solution">
+      <div class="shead">
+        <div class="sicon" style="background:var(--pine)"><span style="font-family:'Noto Serif SC';color:#fff;font-weight:700">${s.icon}</span></div>
+        <div><h4>${s.title}</h4><small class="muted">收敛自 ${s.from}</small></div>
+      </div>
+      <div class="feat">${s.feat.map(f=>`<span>${f}</span>`).join("")}</div>
+      <div class="impact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>${s.impact}</div>
+    </div>`).join("");
+}
+
+function initCompCharts(){
+  if(!window.echarts){ document.querySelectorAll('.chart').forEach(function(c){c.innerHTML='<div style="padding:24px;color:#475569">图表库加载失败，以下为静态结论：番茄ToDo→高度竞争期；Costudy→扩张期；AI自习室→MVP验证期；R3免登录=必备、R1/R5=期望、R2/R4=魅力。</div>';}); return; }
+  var INK='#0f172a', SOFT='#475569', PINE='#1e40af', PINE2='#3b82f6', BAMBOO='#93b4d8', CIN='#c2410c', GOLD='#b45309', LINE='#e2e8f0';
+
+  /* 生命周期定位 */
+  var st=echarts.init(document.getElementById('chart-stages'));
+  st.setOption({
+    grid:{left:46,right:26,top:34,bottom:40},
+    tooltip:{trigger:'axis'},
+    xAxis:{type:'category',data:['MVP验证','跑马圈地','大幅扩张','高度竞争','衰退','转型'],axisLine:{lineStyle:{color:LINE}},axisLabel:{color:SOFT}},
+    yAxis:{type:'value',name:'竞争力 / 规模',nameTextStyle:{color:SOFT},axisLine:{show:false},axisLabel:{color:SOFT},splitLine:{lineStyle:{color:'#eef2f7'}}},
+    series:[
+      {name:'典型生命周期',type:'line',smooth:true,data:[10,32,66,88,62,30],lineStyle:{color:BAMBOO,width:3},symbol:'none',areaStyle:{color:'#93b4d8',opacity:.12}},
+      {name:'定位点',type:'scatter',symbolSize:12,data:[[0,10],[2,58],[3,86]],itemStyle:{color:CIN},label:{show:true,position:'top',formatter:function(p){return ['AI自习室（MVP）','Costudy（扩张）','番茄ToDo（竞争）'][p.dataIndex];},color:INK,fontSize:12}},
+      {name:'趋势标注',type:'line',showSymbol:false,data:null}
+    ]
+  });
+
+  /* SI/DSI 系数 */
+  var sd=echarts.init(document.getElementById('chart-sidsi'));
+  sd.setOption({
+    grid:{left:70,right:30,top:30,bottom:40},
+    legend:{data:['SI 满意度增量 (Better)','DSI 缺失惩罚 (Worse)'],textStyle:{color:SOFT},top:0},
+    tooltip:{trigger:'axis'},
+    xAxis:{type:'category',data:['R1 AI分步讲解','R2 番茄专注+统计','R3 免登录打开即用','R4 AI计划+拖拽','R5 错题归集+导出'],axisLabel:{color:SOFT,fontSize:11},axisLine:{lineStyle:{color:LINE}}},
+    yAxis:{type:'value',min:-1.1,max:1,axisLabel:{color:SOFT,formatter:function(v){return v.toFixed(1);}},splitLine:{lineStyle:{color:'#eef2f7'}}},
+    series:[
+      {name:'SI 满意度增量 (Better)',type:'bar',data:[0.80,0.70,0.40,0.80,0.70],itemStyle:{color:PINE2},barWidth:22,label:{show:true,position:'top',formatter:'{c}',color:INK,fontSize:11}},
+      {name:'DSI 缺失惩罚 (Worse)',type:'bar',data:[-0.70,-0.40,-1.00,-0.10,-0.60],itemStyle:{color:CIN},barWidth:22,label:{show:true,position:'bottom',formatter:'{c}',color:INK,fontSize:11}}
+    ]
+  });
+
+  /* 五属性分布（30样本） */
+  var kn=echarts.init(document.getElementById('chart-kano'));
+  kn.setOption({
+    grid:{left:70,right:30,top:30,bottom:40},
+    legend:{data:['必备 M','期望 O','魅力 A','无差异 I'],textStyle:{color:SOFT},top:0},
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+    xAxis:{type:'value',axisLabel:{color:SOFT},splitLine:{lineStyle:{color:'#eef2f7'}}},
+    yAxis:{type:'category',data:['R5 错题归集+导出','R4 AI计划+拖拽','R3 免登录打开即用','R2 番茄专注+统计','R1 AI分步讲解'],axisLabel:{color:SOFT,fontSize:11},axisLine:{lineStyle:{color:LINE}}},
+    series:[
+      {name:'必备 M',type:'bar',stack:'t',data:[4,0,18,3,6],itemStyle:{color:PINE}},
+      {name:'期望 O',type:'bar',stack:'t',data:[12,3,8,9,15],itemStyle:{color:PINE2}},
+      {name:'魅力 A',type:'bar',stack:'t',data:[9,21,4,12,9],itemStyle:{color:BAMBOO}},
+      {name:'无差异 I',type:'bar',stack:'t',data:[5,6,0,6,0],itemStyle:{color:'#e2e8f0'}}
+    ]
+  });
+
+  /* 四象限 */
+  var qd=echarts.init(document.getElementById('chart-quad'));
+  qd.setOption({
+    grid:{left:50,right:50,top:44,bottom:40},
+    legend:{textStyle:{color:SOFT},top:0},
+    tooltip:{formatter:function(p){return p.data.name;}},
+    xAxis:{type:'value',min:0,max:100,axisLine:{show:false},axisLabel:{show:false},splitLine:{show:false}},
+    yAxis:{type:'value',min:0,max:100,axisLine:{show:false},axisLabel:{show:false},splitLine:{show:false}},
+    graphic:[
+      {type:'line',shape:{x1:50,y1:4,x2:50,y2:96},style:{stroke:LINE,lineWidth:1,lineDash:[4,4]}},
+      {type:'line',shape:{x1:4,y1:50,x2:96,y2:50},style:{stroke:LINE,lineWidth:1,lineDash:[4,4]}},
+      {type:'text',left:6,top:8,style:{text:'高用户重合',fill:SOFT,fontSize:11}},
+      {type:'text',left:6,bottom:6,style:{text:'低用户重合',fill:SOFT,fontSize:11}},
+      {type:'text',right:6,top:8,style:{text:'高服务重合',fill:SOFT,fontSize:11}},
+      {type:'text',right:6,bottom:6,style:{text:'低服务重合',fill:SOFT,fontSize:11}}
+    ],
+    series:[
+      {name:'直接竞争',type:'scatter',symbolSize:22,data:[{value:[80,88],name:'番茄ToDo\n（同用户+同服务）'}],itemStyle:{color:CIN},label:{show:true,formatter:'{b}',position:'right',color:INK,fontSize:11}},
+      {name:'间接互补',type:'scatter',symbolSize:22,data:[{value:[16,76],name:'Anki/百词斩\n（同用户+异服务）'},{value:[30,20],name:'企业学习平台\n（异用户+同服务）'}],itemStyle:{color:BAMBOO},label:{show:true,formatter:'{b}',position:'bottom',color:INK,fontSize:11}},
+      {name:'我们',type:'scatter',symbolSize:24,data:[{value:[46,74],name:'AI自习室\n（差异化切入）'}],itemStyle:{color:GOLD},label:{show:true,formatter:'{b}',position:'top',color:INK,fontSize:11}}
+    ]
+  });
+  window.addEventListener('resize',function(){st.resize();sd.resize();kn.resize();qd.resize();});
+}
+loadEcharts(function(){ renderQuadrant(); renderChain(); initCompCharts(); }); /* 图表库加载后渲染两张图 */
+
+window.addEventListener("resize",()=>{
+  if(chartQuadrantInst)chartQuadrantInst.resize();
+  if(chartChainInst)chartChainInst.resize();
+});
+
+/* ANCHOR_JS_MORE */
+
+renderNeeds();
+renderSurvey();
+renderKano();
+renderHmw();
+</script>
+
+
+<a class="pf-fab" href="prototype.html">▶ 在线原型 <i>8 屏可点</i></a>
+</body>
+</html>
