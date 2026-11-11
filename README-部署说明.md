@@ -88,40 +88,41 @@ Axure 原生版适合进了面试之后再让人细看。
 
 ## 五、部署方式
 
-### 方式 A：已发布（最快，一条链接）
+### 方式 A：WorkBuddy 托管（备线）
 
-当前线上地址就是这套文件，改动后重新发布即可覆盖同一个链接。
+```
+https://ai-studyroom-portfolio.app.workbuddy.host/?sharecode=KAXOW6FQ2R
+```
 
-### 方式 B：GitHub Pages（作品集更常见的做法）
+改动后重新发布即可覆盖同一个链接。注意**必须带完整的 `?sharecode=` 参数**，
+只复制域名会返回 403。这条作为备线保留：国内访问稳定，但地址较长且带参数，
+简历上建议用方式 B 的短地址。
 
-需要一个**自己的** GitHub 账号（项目里参考过的 `1261399042.github.io/AI-` 是别人的站点，只作版式参考，不能推）。
+### 方式 B：GitHub Pages（已上线）
 
-先在 GitHub 网页上新建一个仓库，名字建议 `portfolio` 或 `<用户名>.github.io`，
-然后把下面命令里的 `<用户名>`、`<仓库名>` 换成自己的：
+作品集已发布在：
+
+```
+https://wx04716.github.io/
+```
+
+- 仓库：`https://github.com/wx04716/wx04716.github.io`
+- 分支 `main`，发布目录 `/ (root)`
+- 仓库名与账号名一致（`wx04716.github.io`），属于用户主页站点，所以地址没有子路径
+
+内容改动后这样更新，1-2 分钟自动重新发布，地址不变：
 
 ```bash
 cd AI自习室-作品集-站点
-git init
 git add .
-git commit -m "AI 自习室作品集：文档 + 8 屏可交互原型"
-git branch -M main
-git remote add origin https://github.com/<用户名>/<仓库名>.git
-git push -u origin main
+git commit -m "更新说明"
+git push
 ```
 
-推到仓库根目录后，在仓库 Settings → Pages 里把 Source 设为 `main` 分支 `/ (root)`，
-几十秒后访问：
-
-- 仓库名不是 `<用户名>.github.io` → 地址是 `https://<用户名>.github.io/<仓库名>/`
-- 仓库名是 `<用户名>.github.io` → 地址是 `https://<用户名>.github.io/`
-
-推之前 `git config user.name` 和 `user.email` 要先配好（本机现在是空的），
-否则 commit 会失败或用错身份：
-
-```bash
-git config --global user.name "你的名字"
-git config --global user.email "你的邮箱"
-```
+**推送走 SSH，不依赖网页。** 本机访问 `github.com` 的 443 端口时通时断，但 22 端口稳定，
+所以仓库已配置 `core.sshCommand` 指向 `C:\Users\Public\github-ssh\` 下的密钥
+（放在这里是因为中文用户名会让 SSH 按 GBK 解析路径、读不到 `~/.ssh`）。
+网页打不开时推送照常可用。
 
 两个注意点：
 
@@ -137,7 +138,20 @@ git config --global user.email "你的邮箱"
 
 ## 六、当前线上状态
 
+已实测（2026-11-11 09:48，`https://wx04716.github.io/`）：
+
+| 检查项 | 结果 |
+|---|---|
+| 首页 | 200，228,445 字节 |
+| `/prototype.html` | 200，21,721 字节 |
+| `/assets/overview.png` + 8 张屏幕图 | 全部 200，字节数与本地逐一一致 |
+| `/download/*.rp` 两个工程 | 200，`application/octet-stream`，可正常下载 |
+| 中文文件名 `README-部署说明.md` | 200，未被 Jekyll 处理掉（`.nojekyll` 生效） |
+| 390px 手机宽度 | 文档宽度 = 视口宽度，无横向溢出 |
+
+线上 HTML 比本地小 3,002 / 504 字节，是 `core.autocrlf=true` 把 CRLF 转成 LF 造成的，
+差值正好等于行数，不影响渲染。
+
 - 首页：作品集 18 章，8 屏原型图
 - `/prototype.html`：8 屏可交互演示，43 个热区、7 个提示态
 - `/download/*.rp`：两个 Axure 工程可下载
-- 已验证：首页、演示页、屏幕图、`.rp` 下载全部返回 200；演示页热区跳转、提示条、Tab 切换均已实测通过
